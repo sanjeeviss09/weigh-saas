@@ -1,0 +1,10 @@
+﻿src/routes/analytics.ts(14,16): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/analytics.ts(27,32): error TS2339: Property 'feedbacks' does not exist on type '{ id: string; createdAt: Date; userId: string; title: string; description: string | null; }'.
+src/routes/analytics.ts(33,10): error TS2339: Property 'questions' does not exist on type '{ id: string; createdAt: Date; userId: string; title: string; description: string | null; }'.
+src/routes/analytics.ts(39,14): error TS2339: Property 'feedbacks' does not exist on type '{ id: string; createdAt: Date; userId: string; title: string; description: string | null; }'.
+src/routes/analytics.ts(68,23): error TS2339: Property 'feedbacks' does not exist on type '{ id: string; createdAt: Date; userId: string; title: string; description: string | null; }'.
+src/routes/forms.ts(85,58): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+src/routes/forms.ts(91,41): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
