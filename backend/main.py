@@ -485,8 +485,23 @@ def register_company(req: RegisterCompanyRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-from fastapi.responses import JSONResponse
-
+@app.get("/agent/config/{company_id}")
+def get_agent_config(company_id: str):
+    """Generates the config.json for the PC Agent."""
+    res = db.table("companies").select("api_key").eq("id", company_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=404, detail="Company not found")
+    
+    api_key = res.data[0]["api_key"]
+    config = {
+        "api_url": os.environ.get("VITE_API_URL", "https://logicrate-backend.onrender.com"),
+        "api_key": api_key,
+        "company_id": company_id,
+        "watch_path": "C:\\WeighBridge\\Slips",
+        "sync_interval": 30
+    }
+    
+    from fastapi.responses import JSONResponse
     return JSONResponse(
         content=config,
         headers={"Content-Disposition": 'attachment; filename="config.json"'}

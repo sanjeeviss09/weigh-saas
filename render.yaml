@@ -11,7 +11,11 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
+      - key: GEMINI_API_KEY
+        sync: false
       - key: OPENAI_API_KEY
         sync: false
       - key: PRODUCTION_MODEL_NAME
-        value: "gpt-4-turbo-preview"
+        value: "gemini-1.5-flash"
+      - key: SUPER_ADMIN_EMAIL
+        value: "sanjeevinick09@gmail.com"
