@@ -1,0 +1,32 @@
+from pydantic import BaseModel, root_validator
+from typing import Optional
+
+class WeighmentData(BaseModel):
+    vehicle_number: str
+    gross_weight: Optional[int] = None
+    tare_weight: Optional[int] = None
+    net_weight: Optional[int] = None
+    material: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    party_name: Optional[str] = None
+    slip_number: Optional[str] = None
+    rate_per_ton: Optional[float] = None
+    amount: Optional[float] = None
+
+    @root_validator(pre=True)
+    def normalize_and_validate(cls, values):
+        if values.get('vehicle_number'):
+            values['vehicle_number'] = str(values['vehicle_number']).replace(" ", "").upper()
+            
+        for w in ['gross_weight', 'tare_weight', 'net_weight']:
+            if values.get(w) is not None:
+                if int(values[w]) < 0:
+                    raise ValueError(f"{w} cannot be negative.")
+        return values
+
+class CorrectionRequest(BaseModel):
+    file_id: str
+    company_id: str
+    corrected_data: WeighmentData
+    pattern_notes: Optional[str] = None

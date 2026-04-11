@@ -1,0 +1,26 @@
+# Security
+**/.env
+**/.env.*
+**/supabase_secret
+**/setup_error.log
+
+# Python
+**/venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+**/node_modules/
+**/dist/
+**/build/
+.vercel
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project Specific
+pc-agent/config.json
+**/output.txt
+**/err.txt
