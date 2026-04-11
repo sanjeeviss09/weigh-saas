@@ -10,15 +10,22 @@ load_dotenv()
 # But we point it strictly to your localized hardware port (e.g., Ollama).
 # The api_key parameter doesn't matter for local deployments, so we use dummy text.
 # Determine if we should use Cloud or Local
-CLOUD_AI_KEY = os.environ.get("OPENAI_API_KEY") or os.environ.get("GROQ_API_KEY")
-AI_MODEL = os.environ.get("PRODUCTION_MODEL_NAME") or os.environ.get("LOCAL_MODEL_NAME", "llama3")
+GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
+OPENAI_KEY = os.environ.get("OPENAI_API_KEY") or os.environ.get("GROQ_API_KEY")
+
+cloud_key = GEMINI_KEY or OPENAI_KEY
+AI_MODEL = os.environ.get("PRODUCTION_MODEL_NAME") or ("gemini-1.5-flash" if GEMINI_KEY else os.environ.get("LOCAL_MODEL_NAME", "llama3"))
 AI_BASE_URL = os.environ.get("LOCAL_AI_ENDPOINT", "http://localhost:11434/v1")
 
-use_cloud = CLOUD_AI_KEY and not os.environ.get("FORCE_LOCAL_AI")
+# Gemini uses a specific OpenAI-compatible endpoint
+GEMINI_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/openai/"
+cloud_endpoint = os.environ.get("CLOUD_AI_ENDPOINT") or (GEMINI_ENDPOINT if GEMINI_KEY else None)
+
+use_cloud = cloud_key and not os.environ.get("FORCE_LOCAL_AI")
 
 client = AsyncOpenAI(
-    base_url=os.environ.get("CLOUD_AI_ENDPOINT") if use_cloud else AI_BASE_URL,
-    api_key=CLOUD_AI_KEY if use_cloud else "ollama-local"
+    base_url=cloud_endpoint if use_cloud else AI_BASE_URL,
+    api_key=cloud_key if use_cloud else "ollama-local"
 )
 
 MODEL_NAME = AI_MODEL
