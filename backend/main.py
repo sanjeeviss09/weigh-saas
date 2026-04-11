@@ -9,9 +9,15 @@ from models import WeighmentData, CorrectionRequest
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
-SUPER_ADMIN_EMAIL = os.environ.get("SUPER_ADMIN_EMAIL", "sanjeevinick09@gmail.com")
+print("🚀 STARTING LOGICRATE BACKEND...")
+print(f"Current Directory: {os.getcwd()}")
+print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
 
 app = FastAPI(title="LogiRate AI SaaS")
+
+@app.get("/health")
+def health_check():
+    return {"status": "online", "version": "1.1.0", "engine": "Gemini Neural Link"}
 
 app.add_middleware(
     CORSMiddleware,
