@@ -222,7 +222,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(8rem, 15vh, 12rem) var(--gutter) clamp(4rem, 8vh, 6rem)', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1, minHeight: '80vh' }}>
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(6rem, 12vh, 9rem) var(--gutter) clamp(2rem, 6vh, 4rem)', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1, minHeight: '80vh' }}>
         <div style={{ flex: '1 1 480px' }}>
           <FadeIn>
             <div className="pricing-chip" style={{ marginBottom: '1.5rem', fontSize: '0.75rem' }}>✨ Version 4.2: AI Neural Engine Active</div>
@@ -276,7 +276,7 @@ export default function LandingPage() {
 
       {/* ── FEATURES ────────────────────────────────────────────────────── */}
       <section id="features" style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--section-gap) var(--gutter)', position: 'relative', zIndex: 1 }}>
-        <FadeIn style={{ textAlign: 'center', marginBottom: '5rem' }}>
+        <FadeIn style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}>
           <h2 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.03em' }}>Ecosystem of Power.</h2>
           <p style={{ color: 'var(--text3)', fontSize: '1.1rem', marginTop: '1rem' }}>Replace outdated systems with a high-fidelity logistics orchestrator.</p>
         </FadeIn>
@@ -293,7 +293,7 @@ export default function LandingPage() {
 
       {/* ── AUTOMATION SHOWCASE ────────────────────────────────────────── */}
       <section id="how-it-works" style={{ background: 'rgba(255,255,255,0.01)', padding: 'var(--section-gap) var(--gutter)', borderTop: '1px solid rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.03)', position: 'relative' }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '6rem', alignItems: 'center' }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 100%, 400px), 1fr))', gap: 'clamp(2rem, 8vw, 6rem)', alignItems: 'center' }}>
             <FadeIn direction="left">
                <img src={automationImg} alt="Automation Concept" style={{ width: '100%', borderRadius: 32, boxShadow: '0 50px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(212,175,55,0.1)' }} />
             </FadeIn>
@@ -324,8 +324,8 @@ export default function LandingPage() {
 
       {/* ── PRICING ─────────────────────────────────────────────────────── */}
       <section id="pricing" style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--section-gap) var(--gutter)' }}>
-        <FadeIn style={{ textAlign: 'center', marginBottom: '6rem' }}>
-          <div className="pricing-chip" style={{ marginBottom: '1.5rem' }}>Operational Efficiency Plans</div>
+        <FadeIn style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}>
+          <div className="pricing-chip" style={{ marginBottom: '1rem' }}>Operational Efficiency Plans</div>
           <h2 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em' }}>Command Your Scale.</h2>
           <p style={{ color: 'rgba(255,255,255,0.3)', maxWidth: 600, margin: '1rem auto 0', fontSize: '1.15rem' }}>Choose the synchronization capacity that matches your business throughput.</p>
         </FadeIn>

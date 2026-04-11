@@ -26,7 +26,7 @@
   
   /* ─── Responsive Layout Tokens ─── */
   --gutter: clamp(1.25rem, 5vw, 2.5rem);
-  --section-gap: clamp(4rem, 12vh, 8rem);
+  --section-gap: clamp(2.5rem, 8vh, 5rem);
   --card-padding: clamp(1.25rem, 6vw, 2.5rem);
 }
 
