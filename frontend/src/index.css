@@ -796,6 +796,33 @@ tr:hover td { background: var(--surface2); }
   pointer-events: none;
   transition: opacity 0.3s ease;
 }
+/* ─── LANDING PAGE RESPONSIVENESS ─────────── */
+@media (max-width: 900px) {
+  .nav-links-desktop {
+    display: none !important;
+  }
+  .mobile-toggle {
+    display: block !important;
+  }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.anim-pulse {
+  animation: pulse-dot 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.6; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ────────────────────────────────────────────────────────────── */
+
 .sidebar-overlay.active {
   opacity: 1;
   pointer-events: auto;

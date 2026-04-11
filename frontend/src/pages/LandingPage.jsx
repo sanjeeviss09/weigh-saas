@@ -131,6 +131,8 @@ function PricingCard({ title, price, features, highlighted, footer, companies, d
 // ─── Navbar ───────────────────────────────────────────────────────────────────
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
@@ -142,29 +144,69 @@ function Navbar() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-      background: scrolled ? 'var(--surface)' : 'transparent',
-      backdropFilter: scrolled ? 'blur(20px)' : 'none',
-      borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
+      background: (scrolled || mobileMenuOpen) ? 'var(--surface)' : 'transparent',
+      backdropFilter: (scrolled || mobileMenuOpen) ? 'blur(20px)' : 'none',
+      borderBottom: (scrolled || mobileMenuOpen) ? '1px solid var(--border)' : '1px solid transparent',
       transition: 'all 0.4s ease',
-      boxShadow: scrolled ? '0 4px 30px rgba(0,0,0,0.1)' : 'none'
+      boxShadow: (scrolled || mobileMenuOpen) ? '0 4px 30px rgba(0,0,0,0.1)' : 'none'
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem' }}>
-          <div className="anim-pulse-glow" style={{ background: 'var(--primary-glow)', padding: 8, borderRadius: 12 }}><Truck size={24} color="var(--primary)" /></div>
-          <span style={{ fontSize: '1.4rem', fontWeight: 900, letterSpacing: '-0.035em', color: 'var(--text)' }}>LogiCrate</span>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* Logo */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <div className="anim-pulse-glow" style={{ background: 'var(--primary-glow)', padding: 6, borderRadius: 10 }}><Truck size={20} color="var(--primary)" /></div>
+          <span style={{ fontSize: '1.2rem', fontWeight: 900, letterSpacing: '-0.035em', color: 'var(--text)' }}>LogiCrate</span>
         </div>
 
-        <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
+        {/* Desktop Links */}
+        <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
           {links.map(l => (
-            <a key={l} href={`#${l.toLowerCase().replace(/\s/g,'-')}`} className="nav-item-premium" style={{ width: 'auto', background: 'transparent' }}>{l}</a>
+            <a key={l} href={`#${l.toLowerCase().replace(/\s/g,'-')}`} className="nav-item-premium" style={{ width: 'auto', background: 'transparent', fontSize: '0.85rem' }}>{l}</a>
           ))}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-          <Link to="/login" style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '0.9rem', fontWeight: 700 }}>Log In</Link>
-          <Link to="/signup" className="btn-premium-gold" style={{ padding: '0.7rem 1.75rem', textDecoration: 'none', width: 'auto' }}>Get Started</Link>
+        {/* Desktop Buttons & Mobile Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <Link to="/login" style={{ color: 'var(--text2)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 700 }}>Log In</Link>
+            <Link to="/signup" className="btn-premium-gold" style={{ padding: '0.6rem 1.4rem', textDecoration: 'none', width: 'auto', fontSize: '0.85rem' }}>Get Started</Link>
+          </div>
+          
+          <button 
+            className="mobile-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            style={{ 
+              background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer',
+              display: 'none', // Managed by CSS media query
+              padding: '0.5rem'
+            }}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div style={{ 
+          background: 'var(--surface)', borderTop: '1px solid var(--border)',
+          padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem',
+          animation: 'fadeInDown 0.3s ease forwards'
+        }}>
+          {links.map(l => (
+            <a 
+              key={l} 
+              href={`#${l.toLowerCase().replace(/\s/g,'-')}`} 
+              onClick={() => setMobileMenuOpen(false)}
+              style={{ color: 'var(--text)', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 600 }}
+            >
+              {l}
+            </a>
+          ))}
+          <hr style={{ border: 'none', borderTop: '1px solid var(--border)', margin: '0.5rem 0' }} />
+          <Link to="/login" onClick={() => setMobileMenuOpen(false)} style={{ color: 'var(--primary)', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 800 }}>Log In</Link>
+          <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="btn-premium-gold" style={{ textAlign: 'center', padding: '1rem', textDecoration: 'none' }}>Get Started</Link>
+        </div>
+      )}
     </nav>
   );
 }
@@ -180,39 +222,53 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '12rem 2rem 8rem', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(8rem, 15vh, 12rem) 1.5rem 6rem', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1, minHeight: '80vh' }}>
         <div style={{ flex: '1 1 480px' }}>
           <FadeIn>
-            <div className="pricing-chip" style={{ marginBottom: '2rem' }}>✨ Version 4.2: AI Neural Engine Active</div>
+            <div className="pricing-chip" style={{ marginBottom: '1.5rem', fontSize: '0.75rem' }}>✨ Version 4.2: AI Neural Engine Active</div>
           </FadeIn>
           <FadeIn delay={100}>
-            <h1 className="text-gradient-gold" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, lineHeight: 1, letterSpacing: '-0.04em', marginBottom: '2rem' }}>
+            <h1 className="text-gradient-gold" style={{ fontSize: 'clamp(2.2rem, 8vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: '1.5rem' }}>
               Autonomous<br />Weighbridge Intelligence.
             </h1>
           </FadeIn>
           <FadeIn delay={200}>
-            <p style={{ fontSize: '1.15rem', color: 'var(--text2)', lineHeight: 1.7, maxWidth: 540, marginBottom: '3rem' }}>
+            <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.15rem)', color: 'var(--text2)', lineHeight: 1.6, maxWidth: 540, marginBottom: '2.5rem' }}>
               Eliminate manual entry with AI extraction. Our background agent silently syncs every weighment slip to your secure command center — instantly, accurately, effortlessly.
             </p>
           </FadeIn>
-          <FadeIn delay={300} style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap' }}>
-            <Link to="/signup" className="btn-premium-gold" style={{ padding: '1rem 2.5rem', fontSize: '1.1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
-              Deploy Hub <ArrowRight size={20} />
+          <FadeIn delay={300} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link to="/signup" className="btn-premium-gold" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
+              Deploy Hub <ArrowRight size={18} />
             </Link>
-            <a href="#pricing" className="nav-item-premium" style={{ width: 'auto', padding: '1rem 2rem' }}>View Pricing Models</a>
+            <a href="#pricing" className="nav-item-premium" style={{ width: 'auto', padding: '0.9rem 1.5rem', fontSize: '0.9rem' }}>View Pricing Models</a>
           </FadeIn>
         </div>
 
-        <FadeIn delay={400} direction="right" style={{ flex: '1 1 400px' }}>
-          <div className="anim-float-premium" style={{ position: 'relative' }}>
-             <div style={{ position: 'absolute', inset: -40, background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%)', borderRadius: '50%', zIndex: -1 }} />
-             <img src={dashboardImg} alt="Dashboard Preview" style={{ width: '100%', borderRadius: 24, border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 40px 100px rgba(0,0,0,0.8)' }} />
-             <div className="card-luxury" style={{ position: 'absolute', bottom: '10%', left: '-10%', padding: '1.25rem', borderRadius: 20, maxWidth: 200, border: '1px solid rgba(34,197,94,0.3)', backdropFilter: 'blur(10px)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 10px #22c55e' }} />
-                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#fff' }}>LIVE SYNC</span>
+        <FadeIn delay={400} direction="right" style={{ flex: '1 1 340px' }}>
+          <div className="anim-float-premium" style={{ position: 'relative', width: '100%', maxWidth: 500, margin: '0 auto' }}>
+             <div style={{ position: 'absolute', inset: -20, background: 'radial-gradient(circle, rgba(212,175,55,0.1) 0%, transparent 70%)', borderRadius: '50%', zIndex: -1 }} />
+             <img src={dashboardImg} alt="Dashboard Preview" style={{ width: '100%', borderRadius: 20, border: '1px solid rgba(255,255,255,0.06)', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }} />
+             
+             {/* Dynamic Live Tag */}
+             <div className="card-luxury" style={{ 
+               position: 'absolute', 
+               bottom: '15%', 
+               left: '-5%', 
+               padding: '0.8rem 1.2rem', 
+               borderRadius: 16, 
+               maxWidth: 160, 
+               border: '1px solid rgba(34,197,94,0.3)', 
+               backdropFilter: 'blur(10px)',
+               display: 'flex',
+               flexDirection: 'column',
+               gap: '0.3rem'
+             }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <div className="anim-pulse" style={{ width: 8, height: 8, borderRadius: '50%', background: '#22c55e' }} />
+                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#fff', letterSpacing: '0.05em' }}>LIVE SYNC</span>
                 </div>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>Payload processed via AI Neural Link</div>
+                <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>Payload processed via AI Neural Link</div>
              </div>
           </div>
         </FadeIn>
