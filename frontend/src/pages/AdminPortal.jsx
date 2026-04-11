@@ -136,25 +136,25 @@ export default function AdminPortal({ userEmail }) {
   return (
     <div className="page-content">
       {/* Header Area */}
-      <div className="page-header anim-fade-up" style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: '3rem' }}>
-        <div>
-          <h1 className="gradient-text-gold" style={{ display: 'flex', alignItems: 'center', gap: '1rem', fontSize: '2.5rem' }}>
-            <Globe size={40} color="var(--primary)" className="anim-pulse-glow" /> Command Central
+      <div className="page-header anim-fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ flex: '1 1 300px' }}>
+          <h1 className="gradient-text-gold" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: 'clamp(1.5rem, 6vw, 2.5rem)' }}>
+            <Globe size={window.innerWidth < 768 ? 24 : 40} color="var(--primary)" className="anim-pulse-glow" /> Command Central
           </h1>
-          <p style={{ color: 'var(--text3)', fontSize: '1.1rem' }}>Global Orchestration Ledger • System Authorized: {SUPER_ADMIN_EMAIL}</p>
+          <p style={{ color: 'var(--text3)', fontSize: 'clamp(0.8rem, 2vw, 1.1rem)' }}>Global Orchestration Ledger • System Authorized</p>
         </div>
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button className="nav-item-premium" style={{ width: 'auto', padding: '0.8rem 1.5rem', background: 'var(--surface2)', borderRadius: 14, border: '1px solid var(--border)' }} onClick={fetchAllData} disabled={loading}>
-            <RefreshCw size={18} className={loading ? 'spin' : ''} /> SYNC GRID
+        <div style={{ display: 'flex', gap: '0.75rem', width: window.innerWidth < 768 ? '100%' : 'auto' }}>
+          <button className="nav-item-premium" style={{ flex: 1, padding: '0.75rem', background: 'var(--surface2)', borderRadius: 14, border: '1px solid var(--border)', display : 'flex' , justifyContent: 'center' }} onClick={fetchAllData} disabled={loading}>
+            <RefreshCw size={18} className={loading ? 'spin' : ''} />
           </button>
-          <button className="btn-premium-gold" onClick={() => setShowAddBridge(true)} style={{ width: 'auto', padding: '0.8rem 1.5rem', borderRadius: 14 }}>
+          <button className="btn-premium-gold" onClick={() => setShowAddBridge(true)} style={{ flex: 3, padding: '0.75rem', borderRadius: 14, fontSize: '0.85rem' }}>
             <PlusCircle size={18} /> PROVISION NODE
           </button>
         </div>
       </div>
 
       {/* Global Overview Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 45%, 260px), 1fr))', gap: 'clamp(0.75rem, 3vw, 1.5rem)', marginBottom: 'clamp(1.5rem, 5vw, 3rem)' }}>
         <GlobalStat label="Global Nodes" value={stats?.total_companies ?? 0} sub="Managed Stations" color="#3b82f6" icon={<Activity size={20} />} delay={0.1} />
         <GlobalStat label="Cloud Packets" value={stats?.total_transactions ?? 0} sub="Total Transactions" color="#d4af37" icon={<Truck size={20} />} delay={0.2} />
         <GlobalStat label="Net Tonnage" value={Math.floor((stats?.total_net_weight ?? 0) / 1000)} suffix="t" sub="Total Throughput" color="#22c55e" icon={<Scale size={20} />} delay={0.3} />
@@ -162,22 +162,35 @@ export default function AdminPortal({ userEmail }) {
       </div>
 
       {/* Navigation Tabs */}
-      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem', padding: '0.5rem', background: 'var(--surface2)', borderRadius: 20, border: '1px solid var(--border)', width: 'fit-content' }}>
+      <div style={{ 
+        display: 'flex', 
+        gap: '0.5rem', 
+        marginBottom: '2rem', 
+        padding: '0.4rem', 
+        background: 'var(--surface2)', 
+        borderRadius: 20, 
+        border: '1px solid var(--border)', 
+        width: '100%',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        WebkitOverflowScrolling: 'touch'
+      }}>
         {[
-          { id: 'join-codes', label: 'Provisioning Cryptos', icon: <KeyRound size={16} /> },
-          { id: 'companies', label: 'Node Directory', icon: <Building2 size={16} /> },
-          { id: 'monitor', label: 'Global Stream', icon: <Activity size={16} /> },
-          { id: 'logs', label: 'Core Diagnostics', icon: <Database size={16} /> },
+          { id: 'join-codes', label: 'Provisioning', icon: <KeyRound size={16} /> },
+          { id: 'companies', label: 'Nodes', icon: <Building2 size={16} /> },
+          { id: 'monitor', label: 'Stream', icon: <Activity size={16} /> },
+          { id: 'logs', label: 'Diagnostics', icon: <Database size={16} /> },
         ].map(t => (
           <button
             key={t.id}
             onClick={() => setActiveTab(t.id)}
             style={{
-              display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.5rem',
+              display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.6rem 1.25rem',
               color: activeTab === t.id ? '#000' : 'var(--text3)',
               background: activeTab === t.id ? 'var(--primary)' : 'transparent',
-              border: 'none', borderRadius: 16,
-              fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', transition: 'all 0.2s'
+              border: 'none', borderRadius: 14,
+              fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer', transition: 'all 0.2s',
+              flexShrink: 0
             }}
           >
             {t.icon} {t.label}
@@ -196,8 +209,8 @@ export default function AdminPortal({ userEmail }) {
           
           {/* JOIN CODES TAB */}
           {activeTab === 'join-codes' && (
-            <div className="card-hover-glow" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' }}>
+            <div className="table-wrap">
+              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', minWidth: '800px' }}>
                 <thead style={{ background: 'var(--surface2)' }}>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Target Node</th>
@@ -239,8 +252,8 @@ export default function AdminPortal({ userEmail }) {
 
           {/* MONITOR TAB */}
           {activeTab === 'monitor' && (
-            <div className="card-hover-glow" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, overflow: 'hidden' }}>
-              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px' }}>
+            <div className="table-wrap">
+              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', minWidth: '900px' }}>
                 <thead style={{ background: 'var(--surface2)' }}>
                   <tr>
                     <th style={{ textAlign: 'left', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Node Source</th>
@@ -273,7 +286,7 @@ export default function AdminPortal({ userEmail }) {
 
           {/* WEIGHBRIDGE DIRECTORY */}
           {activeTab === 'companies' && (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 100%, 420px), 1fr))', gap: '1.5rem' }}>
               {weighbridges.map((c, i) => (
                 <div key={c.id} className="card-hover-glow anim-fade-up" style={{ padding: '0', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 28, animationDelay: `${i * 0.1}s` }}>
                   <div style={{ padding: '2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -344,8 +357,15 @@ export default function AdminPortal({ userEmail }) {
 
       {/* MODAL: PROVISION STATION */}
       {showAddBridge && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,6,13,0.95)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-          <div className="auth-card-premium anim-scale-in" style={{ maxWidth: '600px', width: '100%', padding: '3rem' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(5,6,13,0.95)', backdropFilter: 'blur(20px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'clamp(0rem, 2vw, 1rem)' }}>
+          <div className="auth-card-premium anim-scale-in" style={{ 
+            maxWidth: '600px', 
+            width: '100%', 
+            padding: 'clamp(1.5rem, 8vw, 3rem)',
+            height: window.innerWidth < 768 ? '100%' : 'auto',
+            borderRadius: window.innerWidth < 768 ? 0 : 24,
+            overflowY: 'auto'
+          }}>
              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2.5rem' }}>
                 <div>
                    <h2 style={{ fontWeight: 900, fontSize: '1.75rem', color: 'var(--text)' }}>Deploy Global Node</h2>

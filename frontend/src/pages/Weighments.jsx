@@ -185,20 +185,20 @@ export default function Weighments({ companyId, companyName }) {
 
   return (
     <div className="page-content">
-      <div className="page-header anim-fade-up" style={{ marginBottom: '2.5rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 className="gradient-text-gold" style={{ marginBottom: '0.5rem' }}>Weighment Archive</h1>
-            <p>Real-time synchronization with cloud-active weighbridges</p>
+      <div className="page-header anim-fade-up" style={{ marginBottom: 'clamp(1.5rem, 4vw, 2.5rem)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+          <div style={{ flex: '1 1 240px' }}>
+            <h1 className="gradient-text-gold" style={{ marginBottom: '0.25rem', fontSize: 'clamp(1.5rem, 5vw, 2rem)' }}>Weighment Archive</h1>
+            <p style={{ fontSize: 'clamp(0.75rem, 2vw, 0.9rem)' }}>Real-time synchronization with cloud-active weighbridges</p>
           </div>
-          <button className="btn-premium-gold" onClick={() => setShowManual(true)} style={{ display:'flex', alignItems:'center', gap:'0.75rem', width: 'auto', padding: '0.75rem 1.5rem', borderRadius: 14 }}>
+          <button className="btn-premium-gold" onClick={() => setShowManual(true)} style={{ display:'flex', alignItems:'center', gap:'0.75rem', width: 'auto', padding: '0.75rem 1.75rem', borderRadius: 14, fontSize: '0.85rem' }}>
             <PlusCircle size={18} /> CREATE RECORD
           </button>
         </div>
       </div>
 
       {/* ── Summary Stats ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 45%, 220px), 1fr))', gap: 'clamp(0.75rem, 3vw, 1.25rem)', marginBottom: 'clamp(1.5rem, 5vw, 2.5rem)' }}>
         <MiniStat label="Transactions" value={stats.total} icon={<Database size={16} />} color="#3b82f6" delay={0.1} />
         <MiniStat label="In Progress" value={stats.pending} icon={<Clock size={16} />} color="#f59e0b" delay={0.2} />
         <MiniStat label="Completed" value={stats.completed} icon={<CheckCircle size={16} />} color="#22c55e" delay={0.3} />
@@ -206,7 +206,13 @@ export default function Weighments({ companyId, companyName }) {
       </div>
 
       {/* ── Filters & Table ── */}
-      <div className="card-hover-glow anim-fade-up" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '1.5rem', animationDelay: '0.5s' }}>
+      <div className="card-hover-glow anim-fade-up" style={{ 
+        background: 'var(--surface)', 
+        border: '1px solid var(--border)', 
+        borderRadius: 24, 
+        padding: 'clamp(1rem, 4vw, 1.5rem)', 
+        animationDelay: '0.5s' 
+      }}>
         <div style={{ display:'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap:'wrap' }}>
           <div style={{ position:'relative', flex:1, minWidth:280 }}>
             <Search size={16} style={{ position:'absolute', left:'1rem', top:'50%', transform:'translateY(-50%)', color: 'var(--text3)' }} />
@@ -226,7 +232,7 @@ export default function Weighments({ companyId, companyName }) {
           </button>
         </div>
 
-        <div style={{ overflowX:'auto', width:'100%' }}>
+        <div className="table-wrap">
           {loading ? (
             <div style={{ padding:'5rem', textAlign:'center' }}>
               <span className="spinner" style={{ width: 32, height: 32, color: 'var(--primary)' }} />
@@ -302,8 +308,14 @@ export default function Weighments({ companyId, companyName }) {
 
       {/* ── Manual Entry Modal ── */}
       {showManual && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(5,6,13,0.9)', backdropFilter: 'blur(12px)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'1rem' }}>
-          <div className="auth-card-premium anim-scale-in" style={{ maxWidth:'600px', padding:'2.5rem' }}>
+        <div style={{ position:'fixed', inset:0, background:'rgba(5,6,13,0.95)', backdropFilter: 'blur(12px)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(0rem, 2vw, 1rem)' }}>
+          <div className="auth-card-premium anim-scale-in" style={{ 
+            maxWidth:'640px', 
+            padding:'clamp(1.5rem, 6vw, 2.5rem)',
+            height: window.innerWidth < 768 ? '100%' : 'auto',
+            borderRadius: window.innerWidth < 768 ? 0 : 24,
+            overflowY: 'auto'
+          }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1.5rem' }}>
               <div>
                 <h2 style={{ fontWeight:900, fontSize: '1.5rem', color: 'var(--text)', marginBottom: '0.25rem' }}>Manual Entry Wizard</h2>
@@ -323,7 +335,7 @@ export default function Weighments({ companyId, companyName }) {
             )}
 
             <form onSubmit={handleManualSubmit}>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom: '1rem' }}>
+              <div style={{ display:'grid', gridTemplateColumns: window.innerWidth < 480 ? '1fr' : '1fr 1fr', gap:'0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <label style={{ display:'block', fontSize:'0.7rem', fontWeight:700, color:'var(--text3)', marginBottom:'0.5rem', textTransform:'uppercase' }}>Vehicle ID *</label>
                   <input className="input-premium" style={{ width:'100%', fontFamily:'monospace', fontWeight:900, letterSpacing: '2px', boxSizing: 'border-box', background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' }} required placeholder="TN-XX-XXXX"
@@ -335,7 +347,7 @@ export default function Weighments({ companyId, companyName }) {
                     value={formData.material} onChange={e => setFormData({...formData, material: e.target.value})} />
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom: '1rem' }}>
+              <div style={{ display:'grid', gridTemplateColumns: window.innerWidth < 480 ? '1fr' : '1fr 1fr', gap:'0.75rem', marginBottom: '0.75rem' }}>
                 <div>
                   <label style={{ display:'block', fontSize:'0.7rem', fontWeight:700, color:'var(--text3)', marginBottom:'0.5rem', textTransform:'uppercase' }}>{activeTx ? '1st Wt (Read-Only)' : 'Gross Wt (kg) *'}</label>
                   <input className="input-premium" style={{ width:'100%', opacity: activeTx ? 0.4 : 1, boxSizing: 'border-box', background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' }} type="number" 
@@ -349,7 +361,7 @@ export default function Weighments({ companyId, companyName }) {
                     value={formData.tare_weight} onChange={e => setFormData({...formData, tare_weight: e.target.value})} />
                 </div>
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'1rem', marginBottom: '1.5rem' }}>
+              <div style={{ display:'grid', gridTemplateColumns: window.innerWidth < 480 ? '1fr' : '1fr 1fr', gap:'0.75rem', marginBottom: '1rem' }}>
                 <div>
                   <label style={{ display:'block', fontSize:'0.7rem', fontWeight:700, color:'var(--text3)', marginBottom:'0.5rem', textTransform:'uppercase' }}>Client / Party</label>
                   <input className="input-premium" style={{ width:'100%', boxSizing: 'border-box', background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' }} placeholder="Company Name"

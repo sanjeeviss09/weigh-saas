@@ -89,7 +89,7 @@ function OnboardingScreen() {
 
   return (
     <div className="page-content" style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'80vh' }}>
-      <div className="auth-card-premium" style={{ maxWidth:'500px', padding:'3.5rem' }}>
+      <div className="auth-card-premium" style={{ maxWidth:'500px', padding:'clamp(1.5rem, 8vw, 3.5rem)' }}>
         <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
           <div className="anim-pulse-glow" style={{ background:'rgba(212,175,55,0.1)', width:'72px', height:'72px', borderRadius:'22px', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1.5rem', border: '1px solid rgba(212,175,55,0.2)' }}>
             <Building2 size={36} color="var(--primary)" />
@@ -261,7 +261,7 @@ export default function Dashboard({ companyId, companyName }) {
       )}
 
       {/* ── Stats Grid ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(140px, 45%, 260px), 1fr))', gap: 'clamp(0.75rem, 3vw, 1.5rem)', marginBottom: '3rem' }}>
         <StatCard
           label="Total Vehicles"
           value={stats?.total_transactions ?? 0}
@@ -301,7 +301,7 @@ export default function Dashboard({ companyId, companyName }) {
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(300px, 100%, 800px), 1fr))', gap: '1.5rem' }}>
          {/* ── Recent Activity ── */}
          <div className="card-hover-glow" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '2rem' }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'2rem' }}>

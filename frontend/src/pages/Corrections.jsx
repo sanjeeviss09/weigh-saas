@@ -84,7 +84,18 @@ export default function Corrections({ companyId }) {
       ) : (
         <div style={{ display:'flex', flexDirection:'column', gap:'1.5rem' }}>
           {errors.map((err, i) => (
-            <div key={err.id} className="card-hover-glow anim-fade-up" style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(340px, 1fr))', gap:'2rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '2rem', animationDelay: `${i * 0.1}s`, position: 'relative', overflow: 'hidden' }}>
+            <div key={err.id} className="card-hover-glow anim-fade-up" style={{ 
+              display:'grid', 
+              gridTemplateColumns:'repeat(auto-fit, minmax(min(100%, 340px), 1fr))', 
+              gap:'clamp(1rem, 4vw, 2rem)', 
+              background: 'var(--surface)', 
+              border: '1px solid var(--border)', 
+              borderRadius: 24, 
+              padding: 'clamp(1rem, 4vw, 2rem)', 
+              animationDelay: `${i * 0.1}s`, 
+              position: 'relative', 
+              overflow: 'hidden' 
+            }}>
               
               {/* Decorative background element */}
               <div style={{ position: 'absolute', top: -40, right: -40, width: 200, height: 200, background: 'radial-gradient(circle, var(--danger-bg) 0%, transparent 70%)', pointerEvents: 'none' }} />
@@ -145,7 +156,7 @@ export default function Corrections({ companyId }) {
 
                 <div style={{ background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 20, padding: '1.5rem', flex: 1 }}>
                   {editing === err.id ? (
-                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(140px, 1fr))', gap:'1rem' }}>
+                    <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(clamp(120px, 45%, 180px), 1fr))', gap: '0.75rem' }}>
                       {[
                         { key:'vehicle_number', label:'Vehicle ID', mono: true },
                         { key:'material', label:'Material' },

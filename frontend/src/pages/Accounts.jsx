@@ -22,7 +22,7 @@ export default function Accounts() {
             The Financial Orchestration suite is locked. Upgrade to the **Node Pro** tier to automate your party ledgers, tax compliance, and automated invoicing.
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', textAlign: 'left', marginBottom: '4rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(200px, 100%, 300px), 1fr))', gap: 'clamp(1rem, 3vw, 2rem)', textAlign: 'left', marginBottom: 'clamp(2rem, 5vw, 4rem)' }}>
             {[
               { t: "Live Ledgers", d: "Track party-wise balances automatically based on weighment value." },
               { t: "Tax Compliance", d: "Automated GST reconciliation and direct report generation." },
