@@ -9,7 +9,7 @@ from models import WeighmentData, CorrectionRequest
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
-print("🚀 STARTING LOGICRATE BACKEND...")
+print("STARTING LOGICRATE BACKEND...")
 print(f"Current Directory: {os.getcwd()}")
 print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
 
