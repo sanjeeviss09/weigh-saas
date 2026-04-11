@@ -65,7 +65,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif', paddingTop: 'clamp(4rem, 15vh, 8rem)' }}>
       {/* Animated particles */}
       {PARTICLES.map(p => (
         <div key={p.id} style={{
@@ -86,12 +86,12 @@ export default function Login() {
       {/* ── Auth Card ── */}
       <div className="auth-card-premium" style={{ margin: '0 auto' }}>
         {/* Logo */}
-        <div className="anim-fade-up" style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+        <div className="anim-fade-up" style={{ textAlign: 'center', marginBottom: 'clamp(1.5rem, 5vw, 2.5rem)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: 20, background: 'var(--primary-glow)', border: '1px solid var(--primary)', marginBottom: '1.25rem', opacity: 0.8 }}>
             <KeyRound size={32} color="var(--primary)" />
           </div>
           <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>Command Centre Access</h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text3)', marginTop: '0.4rem', fontWeight: 500 }}>Authenticate to your LogiCrate Terminal</p>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text3)', marginTop: '0.5rem', fontWeight: 500, lineHeight: 1.4 }}>Authenticate to your LogiCrate Terminal</p>
         </div>
 
         {/* Stats strip */}

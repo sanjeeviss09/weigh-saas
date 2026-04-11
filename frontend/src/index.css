@@ -23,6 +23,11 @@
   --radius: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
+  
+  /* ─── Responsive Layout Tokens ─── */
+  --gutter: clamp(1.25rem, 5vw, 2.5rem);
+  --section-gap: clamp(4rem, 12vh, 8rem);
+  --card-padding: clamp(1.25rem, 6vw, 2.5rem);
 }
 
 [data-theme='light'] {
@@ -102,10 +107,11 @@ body {
 
 .main { flex: 1; overflow-y: auto; background: var(--bg2); width: 100%; }
 .page-content { 
-  padding: clamp(1rem, 5vw, 2.5rem); 
+  padding: var(--gutter); 
   max-width: 1400px; 
   margin: 0 auto; 
   width: 100%;
+  padding-bottom: calc(var(--gutter) + env(safe-area-inset-bottom, 0px));
 }
 
 /* ─── PAGE HEADER ─────────────────────────── */
@@ -426,7 +432,7 @@ tr:hover td { background: var(--surface2); }
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid var(--border);
   border-radius: 24px;
-  padding: clamp(1.5rem, 8vw, 3rem);
+  padding: var(--card-padding);
   box-shadow: 
     0 32px 80px rgba(0, 0, 0, 0.4),
     0 0 0 1px var(--border),

@@ -50,7 +50,7 @@ function FeatureCard({ icon, title, desc, delay }) {
         onMouseLeave={() => setHovered(false)}
         className="card-luxury"
         style={{
-          padding: '2.5rem', borderRadius: 28,
+          padding: 'var(--card-padding)', borderRadius: 28,
           cursor: 'default', height: '100%',
           display: 'flex', flexDirection: 'column',
           background: hovered ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.01)',
@@ -84,7 +84,7 @@ function PricingCard({ title, price, features, highlighted, footer, companies, d
         onMouseLeave={() => setHovered(false)}
         className="card-luxury anim-shimmer"
         style={{
-          padding: '3rem 2.5rem', borderRadius: 32,
+          padding: 'var(--card-padding)', borderRadius: 32,
           position: 'relative', border: highlighted ? '2px solid var(--primary)' : '1px solid var(--border)',
           transform: highlighted ? (hovered ? 'scale(1.03) translateY(-10px)' : 'scale(1.02)') : (hovered ? 'translateY(-8px)' : 'none'),
           background: highlighted ? 'var(--primary-glow)' : 'var(--surface)',
@@ -222,7 +222,7 @@ export default function LandingPage() {
       <Navbar />
 
       {/* ── HERO ────────────────────────────────────────────────────────── */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(8rem, 15vh, 12rem) 1.5rem 6rem', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1, minHeight: '80vh' }}>
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(8rem, 15vh, 12rem) var(--gutter) clamp(4rem, 8vh, 6rem)', display: 'flex', alignItems: 'center', gap: '4rem', flexWrap: 'wrap', position: 'relative', zIndex: 1, minHeight: '80vh' }}>
         <div style={{ flex: '1 1 480px' }}>
           <FadeIn>
             <div className="pricing-chip" style={{ marginBottom: '1.5rem', fontSize: '0.75rem' }}>✨ Version 4.2: AI Neural Engine Active</div>
@@ -275,7 +275,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── FEATURES ────────────────────────────────────────────────────── */}
-      <section id="features" style={{ maxWidth: 1200, margin: '0 auto', padding: '8rem 2rem', position: 'relative', zIndex: 1 }}>
+      <section id="features" style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--section-gap) var(--gutter)', position: 'relative', zIndex: 1 }}>
         <FadeIn style={{ textAlign: 'center', marginBottom: '5rem' }}>
           <h2 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.03em' }}>Ecosystem of Power.</h2>
           <p style={{ color: 'var(--text3)', fontSize: '1.1rem', marginTop: '1rem' }}>Replace outdated systems with a high-fidelity logistics orchestrator.</p>
@@ -292,7 +292,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── AUTOMATION SHOWCASE ────────────────────────────────────────── */}
-      <section id="how-it-works" style={{ background: 'rgba(255,255,255,0.01)', padding: '10rem 2rem', borderTop: '1px solid rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.03)', position: 'relative' }}>
+      <section id="how-it-works" style={{ background: 'rgba(255,255,255,0.01)', padding: 'var(--section-gap) var(--gutter)', borderTop: '1px solid rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.03)', position: 'relative' }}>
           <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '6rem', alignItems: 'center' }}>
             <FadeIn direction="left">
                <img src={automationImg} alt="Automation Concept" style={{ width: '100%', borderRadius: 32, boxShadow: '0 50px 100px rgba(0,0,0,0.6)', border: '1px solid rgba(212,175,55,0.1)' }} />
@@ -323,7 +323,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── PRICING ─────────────────────────────────────────────────────── */}
-      <section id="pricing" style={{ maxWidth: 1200, margin: '0 auto', padding: '12rem 2rem' }}>
+      <section id="pricing" style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--section-gap) var(--gutter)' }}>
         <FadeIn style={{ textAlign: 'center', marginBottom: '6rem' }}>
           <div className="pricing-chip" style={{ marginBottom: '1.5rem' }}>Operational Efficiency Plans</div>
           <h2 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 900, color: '#fff', letterSpacing: '-0.04em' }}>Command Your Scale.</h2>

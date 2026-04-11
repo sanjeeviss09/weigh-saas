@@ -55,7 +55,7 @@ export default function SupportWidget() {
   };
 
   return (
-    <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+    <div style={{ position: 'fixed', bottom: 'clamp(1rem, 5vh, 2.5rem)', right: 'clamp(1rem, 5vw, 2.5rem)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
       
       {/* ── Chat Window ── */}
       {isOpen && mode === 'chat' && (

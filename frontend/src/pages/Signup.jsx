@@ -99,7 +99,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif' }}>
+    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif', paddingTop: 'clamp(4rem, 15vh, 8rem)' }}>
       {PARTICLES.map(p => (
         <div key={p.id} style={{
           position: 'absolute', borderRadius: '50%',
@@ -113,14 +113,14 @@ export default function Signup() {
       ))}
 
       <div className="auth-card-premium">
-        <div className="anim-fade-up" style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div className="anim-fade-up" style={{ textAlign: 'center', marginBottom: 'clamp(1rem, 4vw, 2rem)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: 20, background: 'var(--primary-glow)', border: '1px solid var(--primary)', marginBottom: '1.25rem', opacity: 0.8 }}>
             <Building2 size={32} color="var(--primary)" />
           </div>
           <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text)' }}>
             {mode === 'admin' ? 'Register Station' : 'Join Station'}
           </h1>
-          <p style={{ fontSize: '0.8rem', color: 'var(--text3)', marginTop: '0.25rem' }}>
+          <p style={{ fontSize: '0.8rem', color: 'var(--text3)', marginTop: '0.5rem', lineHeight: 1.4 }}>
             {mode === 'admin' ? 'Start your weighbridge automation journey' : 'Enter join code to link to a station'}
           </p>
         </div>
