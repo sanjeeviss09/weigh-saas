@@ -165,7 +165,6 @@ function AppShell({ session }) {
     baseLinks = [
       { to: '/',            icon: <LayoutDashboard size={17} />, label: 'Overview', end: true },
       { to: '/analytics',   icon: <BarChart2 size={17} />,       label: 'Analytics & Reports' },
-      { to: '/accounts',    icon: <IndianRupee size={17} />,     label: 'Financial Hub' },
       { to: '/weighments',  icon: <Database size={17} />,        label: 'Weighments' },
       { to: '/corrections', icon: <Wrench size={17} />,          label: 'Corrections' },
       { to: '/admin',       icon: <Building2 size={17} />,       label: 'Station Profile' },
@@ -175,6 +174,7 @@ function AppShell({ session }) {
     baseLinks = [
       { to: '/',            icon: <LayoutDashboard size={17} />, label: 'Overview', end: true },
       { to: '/tasks',       icon: <Database size={17} />,        label: 'Weighment Tasks' },
+      { to: '/accounts',    icon: <IndianRupee size={17} />,     label: 'Financial Hub' },
       { to: '/agent-setup', icon: <Truck size={17} />,           label: 'PC Agent Hub' },
       { to: '/settings',    icon: <Settings size={17} />,        label: 'Settings' },
     ];

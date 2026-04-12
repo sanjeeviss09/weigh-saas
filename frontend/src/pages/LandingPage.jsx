@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Truck, Cpu, Cloud, Zap, ShieldCheck, BarChart2, ArrowRight, CheckCircle, Smartphone, Menu, X, ChevronDown, Globe, Activity, Layers, CreditCard, Receipt, Users } from 'lucide-react';
+import { Truck, Cpu, Cloud, Zap, ShieldCheck, BarChart2, ArrowRight, CheckCircle, Smartphone, Menu, X, ChevronDown, Globe, Activity, Layers, CreditCard, Receipt, Users, Printer } from 'lucide-react';
 import dashboardImg from '../assets/dashboard_3d.png';
 import automationImg from '../assets/automation_3d.png';
 
@@ -229,19 +229,19 @@ export default function LandingPage() {
           </FadeIn>
           <FadeIn delay={100}>
             <h1 className="text-gradient-gold" style={{ fontSize: 'clamp(2.2rem, 8vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: '1.5rem' }}>
-              Autonomous<br />Weighbridge Intelligence.
+              Stop Typing.<br />Start Weighing.
             </h1>
           </FadeIn>
           <FadeIn delay={200}>
-            <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.15rem)', color: 'var(--text2)', lineHeight: 1.6, maxWidth: 540, marginBottom: '2.5rem' }}>
-              Eliminate manual entry with AI extraction. Our background agent silently syncs every weighment slip to your secure command center — instantly, accurately, effortlessly.
+            <p style={{ fontSize: 'clamp(1rem, 2.5vw, 1.15rem)', color: 'var(--text2)', lineHeight: 1.7, maxWidth: 540, marginBottom: '2.5rem' }}>
+              LogiCrate captures weighment data from your existing software automatically. No manual entry, no Excel sheets, no missed records — just accurate data in your dashboard the moment a slip is printed.
             </p>
           </FadeIn>
           <FadeIn delay={300} style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-            <Link to="/signup" className="btn-premium-gold" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
-              Deploy Hub <ArrowRight size={18} />
-            </Link>
-            <a href="#pricing" className="nav-item-premium" style={{ width: 'auto', padding: '0.9rem 1.5rem', fontSize: '0.9rem' }}>View Pricing Models</a>
+            <a href="/login" className="btn-premium-gold" style={{ padding: '0.9rem 2.2rem', fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
+              Get Started Free <ArrowRight size={18} />
+            </a>
+            <a href="#how-it-works" className="nav-item-premium" style={{ width: 'auto', padding: '0.9rem 1.5rem', fontSize: '0.9rem' }}>See How It Works</a>
           </FadeIn>
         </div>
 
@@ -277,17 +277,17 @@ export default function LandingPage() {
       {/* ── FEATURES ────────────────────────────────────────────────────── */}
       <section id="features" style={{ maxWidth: 1200, margin: '0 auto', padding: 'var(--section-gap) var(--gutter)', position: 'relative', zIndex: 1 }}>
         <FadeIn style={{ textAlign: 'center', marginBottom: 'clamp(2.5rem, 6vw, 4rem)' }}>
-          <h2 style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.03em' }}>Ecosystem of Power.</h2>
-          <p style={{ color: 'var(--text3)', fontSize: '1.1rem', marginTop: '1rem' }}>Replace outdated systems with a high-fidelity logistics orchestrator.</p>
+          <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 3rem)', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.03em' }}>Built for Weighbridge Businesses.</h2>
+          <p style={{ color: 'var(--text3)', fontSize: '1.05rem', marginTop: '1rem', maxWidth: 600, margin: '1rem auto 0' }}>Every feature is designed around the real challenges of running a weighment operation — not generic software.</p>
         </FadeIn>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-          <FeatureCard delay={0} icon={<Cpu />} title="Neural Data Extraction" desc="AI extracts gross, tare, net wts and vehicle IDs from any PDF slip with 99.9% precision." />
-          <FeatureCard delay={100} icon={<Cloud />} title="Elastic Cloud Sync" desc="Zero-latency propagation of weighment records across your entire corporate infrastructure." />
-          <FeatureCard delay={200} icon={<ShieldCheck />} title="Encrypted Ledger" desc="Transactions are cryptographically signed and stored in our secure global vault." />
-          <FeatureCard delay={300} icon={<Activity />} title="Live Telemetry" desc="Monitor weighbridge usage, frequency, and operator productivity with millisecond precision." />
-          <FeatureCard delay={400} icon={<Globe />} title="Government Sync" desc="Ready for e-way bill verification and automated GST invoice alignment." />
-          <FeatureCard delay={500} icon={<Zap />} title="Hyper-Automation" desc="Generate and ship invoices to clients automatically based on successful weighments." />
+          <FeatureCard delay={0} icon={<Cpu />} title="Automatic Data Capture" desc="Our PC agent reads your printed weighment slips and extracts all key data — vehicle number, gross, tare, net weight, material, and rate — automatically and accurately." />
+          <FeatureCard delay={100} icon={<Cloud />} title="Real-Time Cloud Sync" desc="Data is uploaded to your secure dashboard instantly. You can check today's weighments from your phone, laptop, or office computer — anywhere." />
+          <FeatureCard delay={200} icon={<ShieldCheck />} title="Secure & Private" desc="Your data is stored in your own account and is never shared. We use bank-grade encryption to keep your weighment records safe." />
+          <FeatureCard delay={300} icon={<Activity />} title="Live Usage Reports" desc="See exactly how busy your weighbridge is, which vehicles visited, and what materials came through — filtered by any date range." />
+          <FeatureCard delay={400} icon={<Globe />} title="Multi-Station Support" desc="Running more than one weighbridge location? Add all your stations under one account and see all data in a single dashboard." />
+          <FeatureCard delay={500} icon={<Zap />} title="No Manual Work" desc="Once set up, the system works on its own. No daily uploads, no spreadsheet updates. Just print slips as you always do." />
         </div>
       </section>
 
@@ -299,20 +299,20 @@ export default function LandingPage() {
             </FadeIn>
             <div>
               <FadeIn direction="right">
-                <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', marginBottom: '1.5rem' }}>Invisible Operation.</h2>
+                <h2 style={{ fontSize: 'clamp(1.8rem, 4vw, 2.5rem)', fontWeight: 900, color: '#fff', marginBottom: '1.5rem' }}>How It Works — Simply.</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
                   {[
-                    { i: <Cpu />, t: "Autonomous Detection", d: "Our PC Agent monitors your local printer spooler and detects new slips instantly." },
-                    { i: <Zap />, t: "Neural Uplink", d: "Data is cleaned, hashed, and processed via AI before cloud synchronization." },
-                    { i: <Layers />, t: "Seamless Ecosystem", d: "Generate invoices, E-way bill cross-checks, and audit logs without manual effort." },
+                    { i: <Printer />, t: "Print as you normally do", d: "Your staff prints weighment slips from your existing software exactly as before. No change in their workflow." },
+                    { i: <Zap />, t: "Agent captures the data", d: "A small program on your PC reads the printed PDF, extracts all weighment details, and sends them to the cloud in the background." },
+                    { i: <Layers />, t: "Dashboard updates instantly", d: "Within seconds, the weighment appears in your online dashboard. View it on your phone, generate reports, or share with your team." },
                   ].map((item, idx) => (
                     <div key={idx} style={{ display: 'flex', gap: '1.5rem' }}>
                        <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', flexShrink: 0 }}>
                           {item.i}
                        </div>
                        <div>
-                          <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>{item.t}</h4>
-                          <p style={{ color: 'var(--text3)', fontSize: '0.95rem', lineHeight: 1.6 }}>{item.d}</p>
+                          <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text)', marginBottom: '0.4rem' }}>{item.t}</h4>
+                          <p style={{ color: 'var(--text3)', fontSize: '0.95rem', lineHeight: 1.7 }}>{item.d}</p>
                        </div>
                     </div>
                   ))}
