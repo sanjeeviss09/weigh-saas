@@ -94,12 +94,6 @@ function ProtectedApp() {
     </div>
   );
 
-  // If we decided session is purely null, let's inject the debug block permanently to track why it went null.
-  const DebugOverlay = () => (
-    <div style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999, background: 'rgba(0,0,0,0.85)', color: '#0f0', padding: '1rem', borderRadius: 8, fontSize: '0.7rem', width: '350px', maxHeight: '400px', overflowY: 'auto', border: '1px solid #333' }}>
-       <strong>Auth Debug Log (null session):</strong><br/>
-       {debugLog.map((log, i) => <div key={i} style={{marginBottom:'0.4rem', borderBottom:'1px solid #222'}}>{log}</div>)}
-       <div style={{marginTop:'1rem', color:'var(--warning)'}}>Current Hash: <br/>{window.location.hash.substring(0, 100)}...</div>
   return (
     <>
       <Routes>
