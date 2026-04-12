@@ -45,22 +45,17 @@ const GoogleIcon = () => (
 // ─── COMPANY SIGNUP ────────────────────────────────────────────────────────────
 function CompanySignup() {
   const navigate = useNavigate();
-  const [step, setStep] = useState(1); // 1 = details, 2 = choose plan
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState('standard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  const handleDetailsSubmit = (e) => {
-    e.preventDefault();
+  const handleRegister = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
     if (!companyName.trim()) return setError('Company name is required.');
-    setError('');
-    setStep(2);
-  };
 
   const handleRegister = async () => {
     setLoading(true); setError('');
@@ -69,7 +64,7 @@ function CompanySignup() {
       const res = await fetch(`${API}/company/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: companyName.trim(), plan: selectedPlan }),
+        body: JSON.stringify({ name: companyName.trim(), plan: 'free' }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -85,7 +80,7 @@ function CompanySignup() {
             role: 'company',
             company_id: company.company_id,
             company_name: company.company_name,
-            plan: selectedPlan,
+            plan: 'free',
           }
         }
       });
@@ -105,7 +100,7 @@ function CompanySignup() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/complete-profile?plan=${selectedPlan}`,
+          redirectTo: `${window.location.origin}/complete-profile?plan=free`,
           queryParams: { access_type: 'offline', prompt: 'consent' },
         }
       });
@@ -124,30 +119,16 @@ function CompanySignup() {
         </div>
         <h1 style={{ fontSize: '1.45rem', fontWeight: 900, color: 'var(--text)' }}>Register Company</h1>
         <p style={{ fontSize: '0.82rem', color: 'var(--text3)', marginTop: '0.4rem' }}>
-          {step === 1 ? 'Create your weighbridge company account' : 'Choose your plan to get started'}
+          Create your transport / logistics account to view weighments, generate E-Way bills & invoices.
         </p>
       </div>
 
-      {/* Step indicator */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.75rem' }}>
-        {['Details', 'Choose Plan'].map((s, i) => (
-          <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.3rem' }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.78rem', fontWeight: 800, background: i < step ? 'var(--primary)' : i === step - 1 ? 'var(--primary)' : 'var(--surface2)', color: i <= step - 1 ? '#000' : 'var(--text3)', border: `2px solid ${i <= step - 1 ? 'var(--primary)' : 'var(--border)'}`, transition: 'all 0.3s' }}>
-              {i < step - 1 ? <CheckCircle size={14} /> : i + 1}
-            </div>
-            <div style={{ fontSize: '0.6rem', fontWeight: 700, color: i === step - 1 ? 'var(--primary)' : 'var(--text3)' }}>{s}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Step 1: Details */}
-      {step === 1 && (
-        <form onSubmit={handleDetailsSubmit}>
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>COMPANY NAME</label>
-            <input className="input-premium" type="text" required placeholder="e.g. Sri Kadai Eswara Weighing"
-              value={companyName} onChange={e => setCompanyName(e.target.value)} style={{ width: '100%' }} />
-          </div>
+      <form onSubmit={handleRegister}>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>COMPANY NAME</label>
+          <input className="input-premium" type="text" required placeholder="e.g. L&T Logistics"
+            value={companyName} onChange={e => setCompanyName(e.target.value)} style={{ width: '100%' }} />
+        </div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>EMAIL ADDRESS</label>
             <input className="input-premium" type="email" required placeholder="admin@yourcompany.com"
@@ -164,8 +145,9 @@ function CompanySignup() {
             </div>
           </div>
           {error && <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: 'var(--danger)', fontSize: '0.82rem', fontWeight: 600 }}>{error}</div>}
-          <button className="btn-premium-gold" type="submit">
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Continue <ArrowRight size={18} /></span>
+          {message && <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: 'var(--success)', fontSize: '0.82rem', fontWeight: 600 }}>{message}</div>}
+          <button className="btn-premium-gold" type="submit" disabled={loading}>
+            {loading ? <span className="spinner" /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Create Account <ArrowRight size={18} /></span>}
           </button>
 
           <div style={{ display: 'flex', alignItems: 'center', margin: '1.5rem 0', gap: '1rem' }}>
@@ -182,55 +164,7 @@ function CompanySignup() {
             <GoogleIcon /> Sign up with Google
           </button>
         </form>
-      )}
-
-      {/* Step 2: Choose Plan */}
-      {step === 2 && (
-        <div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
-            {PLANS.map(plan => (
-              <div key={plan.id} onClick={() => setSelectedPlan(plan.id)}
-                style={{ padding: '1.25rem', border: `2px solid ${selectedPlan === plan.id ? 'var(--primary)' : 'var(--border)'}`, borderRadius: 16, cursor: 'pointer', background: selectedPlan === plan.id ? 'rgba(212,175,55,0.06)' : 'var(--surface)', transition: 'all 0.2s', position: 'relative' }}>
-                {plan.popular && <div style={{ position: 'absolute', top: '-10px', right: '1rem', background: 'var(--primary)', color: '#000', fontSize: '0.6rem', fontWeight: 900, padding: '2px 10px', borderRadius: 99, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Most Popular</div>}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
-                  <div>
-                    <div style={{ fontWeight: 900, fontSize: '0.95rem', color: 'var(--text)' }}>{plan.name}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>{plan.desc}</div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--primary)' }}>{plan.price}</span>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text3)' }}>{plan.period}</span>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.5rem' }}>
-                  {plan.features.slice(0, 3).map(f => (
-                    <span key={f} style={{ fontSize: '0.68rem', color: 'var(--text2)', background: 'var(--bg2)', padding: '2px 8px', borderRadius: 99, border: '1px solid var(--border)' }}>✓ {f}</span>
-                  ))}
-                </div>
-              </div>
-            ))}
-
-            <div style={{ padding: '0.85rem 1rem', background: 'rgba(212,175,55,0.04)', border: '1px dashed rgba(212,175,55,0.25)', borderRadius: 12, display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-              <Info size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
-              <div style={{ fontSize: '0.75rem', color: 'var(--text3)', lineHeight: 1.5 }}>
-                Plans can be changed later. If you qualify for a special arrangement, contact us after signing up and our team will enable it for your account.
-              </div>
-            </div>
-          </div>
-
-          {error && <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: 'var(--danger)', fontSize: '0.82rem', fontWeight: 600 }}>{error}</div>}
-          {message && <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: 'var(--success)', fontSize: '0.82rem', fontWeight: 600 }}>{message}</div>}
-
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => setStep(1)} style={{ flex: '0 0 auto', padding: '0.85rem 1.25rem', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface)', color: 'var(--text2)', fontWeight: 700, cursor: 'pointer', fontSize: '0.88rem' }}>
-              ← Back
-            </button>
-            <button className="btn-premium-gold" onClick={handleRegister} disabled={loading} style={{ flex: 1 }}>
-              {loading ? <span className="spinner" /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Create Account <ArrowRight size={18} /></span>}
-            </button>
-          </div>
-        </div>
-      )}
+        </form>
 
       <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.82rem', color: 'var(--text3)' }}>
         Already have an account?{' '}
