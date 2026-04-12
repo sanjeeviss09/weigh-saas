@@ -209,6 +209,7 @@ export default function SuperAdmin({ userEmail }) {
   const [stats, setStats] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [errors, setErrors] = useState([]);
+  const [opRequests, setOpRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('companies');
   const [viewCompany, setViewCompany] = useState(null);
@@ -221,13 +222,14 @@ export default function SuperAdmin({ userEmail }) {
   const fetchAll = async () => {
     setLoading(true);
     try {
-      const [sRes, cRes, eRes] = await Promise.all([
+      const [sRes, cRes, eRes, oRes] = await Promise.all([
         fetch(`${API}/super/stats`,     { headers: apiH(userEmail) }),
         fetch(`${API}/super/companies`, { headers: apiH(userEmail) }),
         fetch(`${API}/super/errors`,    { headers: apiH(userEmail) }),
+        fetch(`${API}/super/operator-requests`, { headers: apiH(userEmail) }),
       ]);
-      const [s, c, e] = await Promise.all([sRes.json(), cRes.json(), eRes.json()]);
-      setStats(s); setCompanies(c.data || []); setErrors(e.data || []);
+      const [s, c, e, o] = await Promise.all([sRes.json(), cRes.json(), eRes.json(), oRes.json()]);
+      setStats(s); setCompanies(c.data || []); setErrors(e.data || []); setOpRequests(o.data || []);
     } finally {
       setLoading(false);
     }
@@ -238,6 +240,11 @@ export default function SuperAdmin({ userEmail }) {
   const handleDelete = async (id) => {
     await fetch(`${API}/super/company/${id}`, { method:'DELETE', headers: apiH(userEmail) });
     setDeleteConfirm(null); fetchAll();
+  };
+
+  const handleApproveOp = async (id) => {
+    await fetch(`${API}/super/operator-requests/${id}/approve`, { method:'POST', headers: apiH(userEmail) });
+    fetchAll();
   };
 
   if (!isAuthorized) return (
@@ -315,6 +322,7 @@ export default function SuperAdmin({ userEmail }) {
           <div style={{ display:'flex', gap:'0.25rem', background:'var(--surface)', padding:'0.25rem', borderRadius:'var(--radius)', width:'fit-content', marginBottom:'1.5rem' }}>
             {[
               { id:'companies', label:`Companies (${companies.length})` },
+              { id:'op_requests', label:`Operator Requests (${opRequests.filter(r => r.status === 'pending').length})` },
               { id:'errors',    label:`Errors (${errors.length})` },
             ].map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} className="btn" style={{ padding:'0.5rem 1.1rem', background: tab===t.id ? 'var(--surface2)' : 'transparent', color: tab===t.id ? 'var(--primary)' : 'var(--text2)', border: tab===t.id ? '1px solid var(--border2)' : '1px solid transparent' }}>
@@ -330,6 +338,7 @@ export default function SuperAdmin({ userEmail }) {
                 <thead>
                   <tr>
                     <th>Company</th>
+                    <th>Plan</th>
                     <th>Join Code</th>
                     <th>API Key</th>
                     <th>Created</th>
@@ -343,6 +352,11 @@ export default function SuperAdmin({ userEmail }) {
                     <tr key={c.id}>
                       <td className="td-primary" style={{ display:'flex', alignItems:'center', gap:'0.6rem' }}>
                         <Building2 size={15} color="var(--primary)" /> {c.name}
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', padding: '2px 8px', borderRadius: 6, background: c.plan === 'enterprise' ? 'rgba(212,175,55,0.1)' : 'var(--bg2)', color: c.plan === 'enterprise' ? 'var(--primary)' : 'var(--text2)', border: '1px solid var(--border)' }}>
+                          {c.plan || 'Standard'}
+                        </span>
                       </td>
                       <td style={{ fontFamily:'monospace', fontSize:'0.85rem', letterSpacing:'2px', color:'var(--primary)' }}>{c.join_code}</td>
                       <td style={{ fontFamily:'monospace', fontSize:'0.75rem', color:'var(--text3)' }}>
@@ -360,6 +374,46 @@ export default function SuperAdmin({ userEmail }) {
                             <Trash2 size={13} />
                           </button>
                         </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {/* Operator Requests */}
+          {tab === 'op_requests' && (
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Requester</th>
+                    <th>Contact Info</th>
+                    <th>Message</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {opRequests.length === 0 ? (
+                    <tr><td colSpan={5} style={{ textAlign:'center', padding:'3rem', color:'var(--text3)' }}>No requests yet.</td></tr>
+                  ) : opRequests.map(r => (
+                    <tr key={r.id}>
+                      <td style={{ fontWeight: 700 }}>{r.name}</td>
+                      <td style={{ color: 'var(--text2)' }}>{r.contact}</td>
+                      <td style={{ fontSize: '0.8rem', color: 'var(--text3)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.message || '—'}</td>
+                      <td>
+                        <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: r.status === 'approved' ? 'var(--success-bg)' : 'rgba(245,158,11,0.05)', color: r.status === 'approved' ? 'var(--success)' : 'var(--warning)' }}>
+                          {r.status.toUpperCase()}
+                        </span>
+                      </td>
+                      <td>
+                        {r.status === 'pending' && (
+                          <button className="btn btn-primary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }} onClick={() => handleApproveOp(r.id)}>
+                            Approve
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

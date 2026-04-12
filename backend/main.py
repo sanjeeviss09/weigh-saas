@@ -460,6 +460,7 @@ def get_active_weighment(vehicle_number: str, company_id: str = Query(...)):
 
 class RegisterCompanyRequest(BaseModel):
     name: str
+    plan: Optional[str] = "standard"
     custom_join_code: Optional[str] = None
 
 @app.post("/company/register")
@@ -482,7 +483,8 @@ def register_company(req: RegisterCompanyRequest):
         res = db.table("companies").insert({
             "name": name,
             "api_key": api_key,
-            "join_code": join_code
+            "join_code": join_code,
+            "plan": req.plan
         }).execute()
         if not res.data:
             raise HTTPException(status_code=500, detail="Failed to create station")
@@ -542,3 +544,28 @@ async def api_chat(req: ChatRequest):
         return {"response": "I can help you with agent setup, finding weighments, or checking system status. What's on your mind?"}
     else:
         return {"response": "I'm not sure about that, but our command centre is available 24/7 on WhatsApp (+91 95005 93997). Shall I link you to them?"}
+
+@app.post("/operator-code-request")
+def create_operator_code_request(req: OperatorCodeRequest):
+    """Stores a request for a join code from a potential operator."""
+    res = db.table("operator_requests").insert({
+        "name": req.name,
+        "contact": req.contact,
+        "message": req.message,
+        "status": "pending"
+    }).execute()
+    return {"status": "success", "data": res.data[0]}
+
+@app.get("/super/operator-requests")
+def get_operator_requests(x_admin_email: Optional[str] = Header(None)):
+    """Super Admin fetches all operator code requests."""
+    verify_super_admin(x_admin_email)
+    res = db.table("operator_requests").select("*").order("created_at", desc=True).execute()
+    return {"data": res.data}
+
+@app.post("/super/operator-requests/{request_id}/approve")
+def approve_operator_request(request_id: str, x_admin_email: Optional[str] = Header(None)):
+    """Super Admin marks a request as approved."""
+    verify_super_admin(x_admin_email)
+    res = db.table("operator_requests").update({"status": "approved"}).eq("id", request_id).execute()
+    return {"status": "success"}

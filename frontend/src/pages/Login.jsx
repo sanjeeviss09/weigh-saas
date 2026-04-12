@@ -90,8 +90,8 @@ export default function Login() {
           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: 20, background: 'var(--primary-glow)', border: '1px solid var(--primary)', marginBottom: '1.25rem', opacity: 0.8 }}>
             <KeyRound size={32} color="var(--primary)" />
           </div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>Command Centre Access</h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text3)', marginTop: '0.5rem', fontWeight: 500, lineHeight: 1.4 }}>Authenticate to your LogiCrate Terminal</p>
+          <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>Welcome Back</h1>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text3)', marginTop: '0.5rem', fontWeight: 500, lineHeight: 1.4 }}>Sign in to your LogiCrate account</p>
         </div>
 
         {/* Stats strip */}
@@ -149,7 +149,7 @@ export default function Login() {
           {error && <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: 10, padding: '0.85rem', marginBottom: '1.25rem', color: 'var(--danger)', fontSize: '0.85rem', fontWeight: 600 }}>{error}</div>}
 
           <button className="btn-premium-gold" type="submit" disabled={loading} style={{ marginTop: '0.5rem' }}>
-            {loading ? <span className="spinner" style={{ borderColor: 'var(--border)', borderTopColor: 'var(--text)' }} /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Engage Uplink <ArrowRight size={18} /></span>}
+            {loading ? <span className="spinner" style={{ borderColor: 'var(--border)', borderTopColor: 'var(--text)' }} /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Sign In <ArrowRight size={18} /></span>}
           </button>
         </form>
 

@@ -36,3 +36,18 @@ class CorrectionRequest(BaseModel):
     company_id: str
     corrected_data: WeighmentData
     pattern_notes: Optional[str] = None
+
+class OperatorCodeRequest(BaseModel):
+    name: str
+    contact: str
+    message: Optional[str] = None
+
+class CompanyProfileUpdate(BaseModel):
+    name: str
+    plan: str
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+
+class CompanyRegistration(BaseModel):
+    name: str
+    plan: str

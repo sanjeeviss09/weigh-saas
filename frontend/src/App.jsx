@@ -14,6 +14,7 @@ import AdminPortal from './pages/AdminPortal';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import SignupOperator from './pages/SignupOperator';
+import CompanyProfile from './pages/CompanyProfile';
 import AgentSetup from './pages/AgentSetup';
 import OperatorSettings from './pages/OperatorSettings';
 import LandingPage from './pages/LandingPage';
@@ -99,9 +100,6 @@ function ProtectedApp() {
        <strong>Auth Debug Log (null session):</strong><br/>
        {debugLog.map((log, i) => <div key={i} style={{marginBottom:'0.4rem', borderBottom:'1px solid #222'}}>{log}</div>)}
        <div style={{marginTop:'1rem', color:'var(--warning)'}}>Current Hash: <br/>{window.location.hash.substring(0, 100)}...</div>
-    </div>
-  );
-
   return (
     <>
       <Routes>
@@ -110,10 +108,10 @@ function ProtectedApp() {
         <Route path="/login"           element={!session ? <Login />           : <Navigate to="/" />} />
         <Route path="/signup"          element={!session ? <Signup />          : <Navigate to="/" />} />
         <Route path="/signup-operator" element={!session ? <SignupOperator /> : <Navigate to="/" />} />
+        <Route path="/complete-profile" element={<CompanyProfile />} />
         <Route path="/*"               element={session ? <AppShell session={session} /> : <Navigate to="/login" />} />
       </Routes>
       <SupportWidget />
-      {!session && <DebugOverlay />}
     </>
   );
 }
