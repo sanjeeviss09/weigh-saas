@@ -11,11 +11,7 @@
   ],
   "rewrites": [
     {
-      "source": "/LogiRateSetup.exe",
-      "destination": "/LogiRateSetup.exe"
-    },
-    {
-      "source": "/((?!LogiRateSetup.exe).*)",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
