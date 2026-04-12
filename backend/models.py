@@ -1,4 +1,4 @@
-from pydantic import BaseModel, root_validator
+from pydantic import BaseModel, model_validator
 from typing import Optional
 
 class WeighmentData(BaseModel):
@@ -14,15 +14,21 @@ class WeighmentData(BaseModel):
     rate_per_ton: Optional[float] = None
     amount: Optional[float] = None
 
-    @root_validator(pre=True)
+    @model_validator(mode='before')
+    @classmethod
     def normalize_and_validate(cls, values):
+        if not isinstance(values, dict):
+            return values
         if values.get('vehicle_number'):
             values['vehicle_number'] = str(values['vehicle_number']).replace(" ", "").upper()
             
         for w in ['gross_weight', 'tare_weight', 'net_weight']:
             if values.get(w) is not None:
-                if int(values[w]) < 0:
-                    raise ValueError(f"{w} cannot be negative.")
+                try:
+                    if int(values[w]) < 0:
+                        raise ValueError(f"{w} cannot be negative.")
+                except (ValueError, TypeError):
+                    pass
         return values
 
 class CorrectionRequest(BaseModel):

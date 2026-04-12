@@ -13,6 +13,8 @@ print("STARTING LOGICRATE BACKEND...")
 print(f"Current Directory: {os.getcwd()}")
 print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
 
+SUPER_ADMIN_EMAIL = os.environ.get("SUPER_ADMIN_EMAIL", "sanjeevinick09@gmail.com")
+
 app = FastAPI(title="LogiRate AI SaaS")
 
 @app.get("/health")
@@ -97,6 +99,9 @@ async def process_pdf_worker(queue: asyncio.Queue):
 @app.on_event("startup")
 async def startup_event():
     global process_queue
+    if db is None:
+        print("CRITICAL: Database not initialized. Backend may fail.")
+    
     loop = asyncio.get_running_loop()
     process_queue = asyncio.Queue()
     loop.create_task(process_pdf_worker(process_queue))

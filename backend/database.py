@@ -8,18 +8,22 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
 def get_supabase() -> Client:
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        print("CRITICAL ERROR: Supabase credentials not found in env!")
+    # Use fallback empty string to avoid NoneType errors
+    url = SUPABASE_URL or ""
+    key = SUPABASE_KEY or ""
+
+    if not url or not key:
+        print("⚠️  WARNING: Supabase credentials (URL/KEY) not found in environment variables.")
         return None
     
     # Validation for the new opaque key format vs old JWT format
-    if not (SUPABASE_KEY.startswith("eyJ") or SUPABASE_KEY.startswith("sb_secret_")):
-        print(f"CRITICAL ERROR: Invalid Supabase Key format detected. Expected 'eyJ...' or 'sb_secret_...'. Found: '{SUPABASE_KEY[:15]}...'")
+    if not (key.startswith("eyJ") or key.startswith("sb_secret_")):
+        print(f"⚠️  NOTICE: Non-standard Supabase Key format detected. If requests fail, check your SERVICE_ROLE key.")
         
     try:
-        return create_client(SUPABASE_URL, SUPABASE_KEY)
+        return create_client(url, key)
     except Exception as e:
-        print(f"DB Error: {str(e)}")
+        print(f"❌ DATABASE CONNECTION ERROR: {str(e)}")
         return None
 
 db = get_supabase()
