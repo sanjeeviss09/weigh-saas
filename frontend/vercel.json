@@ -1,8 +1,21 @@
 {
   "version": 2,
+  "headers": [
+    {
+      "source": "/LogiRateSetup.exe",
+      "headers": [
+        { "key": "Content-Type", "value": "application/octet-stream" },
+        { "key": "Content-Disposition", "value": "attachment; filename=\"LogiRateSetup.exe\"" }
+      ]
+    }
+  ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/LogiRateSetup.exe",
+      "destination": "/LogiRateSetup.exe"
+    },
+    {
+      "source": "/((?!LogiRateSetup.exe).*)",
       "destination": "/index.html"
     }
   ]
