@@ -846,3 +846,97 @@ tr:hover td { background: var(--surface2); }
   opacity: 1;
   pointer-events: auto;
 }
+
+/* ════════════════════════════════════════════════════════════════ */
+/* ─── COMPREHENSIVE RESPONSIVE SYSTEM ──────────────────────────  */
+/* ════════════════════════════════════════════════════════════════ */
+
+/* ─── Auth pages: Scale flush on all screen sizes ─── */
+.auth-page-premium {
+  padding: clamp(1rem, 4vw, 3rem) clamp(0.75rem, 4vw, 2rem);
+}
+.auth-card-premium {
+  max-width: min(480px, 96vw);
+  margin: auto;
+}
+
+/* ─── Desktop stays clean, sidebar always visible ─── */
+@media (min-width: 1025px) {
+  .sidebar { transform: translateX(0) !important; position: relative !important; }
+  .mobile-nav-header { display: none !important; }
+  .sidebar-overlay { display: none !important; }
+}
+
+/* ─── Laptop (1024px – 1340px): Tighten sidebar ─── */
+@media (min-width: 1025px) and (max-width: 1340px) {
+  .sidebar {
+    width: 230px;
+    min-width: 230px;
+    max-width: 230px;
+    padding: 1.25rem 1rem;
+  }
+  .sidebar-logo { font-size: 1rem; }
+  .page-content { padding: 1.5rem 1.75rem; }
+  .stat-value { font-size: 1.75rem; }
+  .page-header h1 { font-size: 1.45rem; }
+  .nav-item-premium { font-size: 0.82rem; padding: 0.65rem 0.75rem; }
+}
+
+/* ─── Tablet (768px – 1024px) ─── */
+@media (max-width: 1024px) {
+  .app-shell { flex-direction: column; }
+  .main { height: calc(100vh - 60px); overflow-y: auto; }
+  .page-content { padding: 1.25rem; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .stat-value { font-size: 1.5rem; }
+  .stat-card-premium { padding: 1.2rem; }
+  .two-col-grid { grid-template-columns: 1fr !important; }
+  .chart-grid   { grid-template-columns: 1fr !important; }
+}
+
+/* ─── Mobile (< 768px) ─── */
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .stat-card, .stat-card-premium { padding: 1rem; }
+  .stat-value { font-size: 1.35rem; }
+  .stat-label { font-size: 0.68rem; }
+  .page-content { padding: 1rem; }
+  .page-header h1 { font-size: 1.25rem; }
+  .page-header { margin-bottom: 1.25rem; flex-direction: column; align-items: flex-start !important; gap: 0.75rem; }
+  .table-toolbar { flex-wrap: wrap; gap: 0.5rem; padding: 0.85rem 1rem; }
+  th, td { padding: 0.65rem 0.75rem; font-size: 0.78rem; }
+  .auth-card-premium { padding: 1.5rem 1.25rem; border-radius: 18px; }
+}
+
+/* ─── Small phones (< 480px) ─── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .auth-card-premium { margin: 0.5rem; width: calc(100vw - 1rem); border-radius: 16px; }
+  .table-toolbar input, .table-toolbar select { font-size: 0.78rem; }
+  :root { --card-padding: 1rem; --gutter: 0.875rem; }
+}
+
+/* ─── Table scrolls horizontally on narrow screens ─── */
+@media (max-width: 640px) {
+  .table-wrap { border-radius: 12px; }
+  table { min-width: 580px; }
+  .table-toolbar { padding: 0.85rem 1rem; }
+}
+
+/* ─── Landing Page Hero + Sections ─── */
+@media (max-width: 900px) {
+  /* Pricing grid: stacked */
+  section > div[style*="grid-template-columns: repeat(auto-fit, minmax(340px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (max-width: 768px) {
+  /* Feature cards single column */
+  section > div[style*="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))"] {
+    grid-template-columns: 1fr !important;
+  }
+  /* Automation showcase stacks */
+  section > div[style*="grid-template-columns: repeat(auto-fit, minmax(clamp(280px"] {
+    grid-template-columns: 1fr !important;
+  }
+}

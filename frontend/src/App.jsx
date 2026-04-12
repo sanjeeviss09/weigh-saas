@@ -25,20 +25,42 @@ const SUPER_ADMIN_EMAIL = 'sanjeevinick09@gmail.com';
 function ProtectedApp() {
   const [session, setSession] = useState(undefined);
   const [error, setError] = useState(null);
+  const [debugLog, setDebugLog] = useState([]);
+
+  const addLog = (msg) => {
+    console.log(msg);
+    setDebugLog(prev => [...prev, `${new Date().toISOString().split('T')[1].split('.')[0]} - ${msg}`]);
+  };
 
   useEffect(() => {
     // Timeout to prevent infinite blank screen
     const timer = setTimeout(() => {
-      if (session === undefined) {
-        setError('Connection Timeout: Unable to reach authentication server. Please check your Supabase keys in .env');
-      }
+      // Only show timeout error if session is strictly undefined (initial load state)
+      // We use a functional state update to safely check the current state without adding it to dependencies.
+      setSession(currentSession => {
+        if (currentSession === undefined) {
+           setError('Connection Timeout: Unable to reach authentication server. Please check your Supabase keys in .env');
+        }
+        return currentSession;
+      });
     }, 6000);
 
+    // Initial session fetch
+    addLog("Mount: Calling getSession()...");
     supabase.auth.getSession()
-      .then(({ data: { session } }) => setSession(session))
-      .catch(err => setError(`Supabase Error: ${err.message}`));
+      .then(({ data: { session }, error }) => {
+        addLog(`getSession() resolved. session=${session ? session.user.email : 'null'}, error=${error?.message || 'none'}`);
+        setSession(session);
+      })
+      .catch(err => {
+        addLog(`getSession() catch block: ${err.message}`);
+        setError(`Supabase Error: ${err.message}`);
+      });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+    // Listen to auth changes (login, logout, refresh)
+    addLog("Mount: Subscribing to onAuthStateChange...");
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, s) => {
+      addLog(`onAuthStateChange event: ${event}. session=${s ? s.user.email : 'null'}`);
       setSession(s);
       setError(null);
     });
@@ -47,7 +69,7 @@ function ProtectedApp() {
       clearTimeout(timer);
       subscription.unsubscribe();
     };
-  }, [session]);
+  }, []); // <-- Empty dependency array ensures this only runs once on mount
 
   if (error) return (
     <div style={{ height:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'var(--bg)', padding:'2rem', textAlign:'center' }}>
@@ -59,11 +81,24 @@ function ProtectedApp() {
   );
 
   if (session === undefined) return (
-    <div style={{ height:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
+    <div style={{ height:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:'var(--bg)' }}>
       <div style={{ textAlign:'center' }}>
         <span className="spinner" />
         <p style={{ marginTop:'1rem', color:'var(--text3)', fontSize:'0.8rem' }}>Connecting to Logicrate Cloud...</p>
       </div>
+      <div style={{ marginTop: '2rem', textAlign: 'left', background: '#000', color: '#0f0', padding: '1rem', borderRadius: 8, fontSize: '0.7rem', width: '80%', maxWidth: '500px', overflowX: 'auto', border: '1px solid #333' }}>
+         <strong>Auth Debug Log (spinner):</strong><br/>
+         {debugLog.map((log, i) => <div key={i}>{log}</div>)}
+      </div>
+    </div>
+  );
+
+  // If we decided session is purely null, let's inject the debug block permanently to track why it went null.
+  const DebugOverlay = () => (
+    <div style={{ position: 'fixed', bottom: '1rem', right: '1rem', zIndex: 9999, background: 'rgba(0,0,0,0.85)', color: '#0f0', padding: '1rem', borderRadius: 8, fontSize: '0.7rem', width: '350px', maxHeight: '400px', overflowY: 'auto', border: '1px solid #333' }}>
+       <strong>Auth Debug Log (null session):</strong><br/>
+       {debugLog.map((log, i) => <div key={i} style={{marginBottom:'0.4rem', borderBottom:'1px solid #222'}}>{log}</div>)}
+       <div style={{marginTop:'1rem', color:'var(--warning)'}}>Current Hash: <br/>{window.location.hash.substring(0, 100)}...</div>
     </div>
   );
 
@@ -78,6 +113,7 @@ function ProtectedApp() {
         <Route path="/*"               element={session ? <AppShell session={session} /> : <Navigate to="/login" />} />
       </Routes>
       <SupportWidget />
+      {!session && <DebugOverlay />}
     </>
   );
 }
