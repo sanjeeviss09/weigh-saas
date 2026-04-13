@@ -41,6 +41,11 @@ class ChatRequest(BaseModel):
     company_id: Optional[str] = None
     company_name: Optional[str] = None
 
+class OperatorCodeRequest(BaseModel):
+    name: str
+    contact: str
+    message: Optional[str] = ""
+
 async def verify_api_key(x_api_key: str):
     if not x_api_key:
         raise HTTPException(status_code=401, detail="API Key missing")
