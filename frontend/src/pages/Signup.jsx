@@ -56,8 +56,6 @@ function CompanySignup() {
   const handleRegister = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (!companyName.trim()) return setError('Company name is required.');
-
-  const handleRegister = async () => {
     setLoading(true); setError('');
     try {
       // Create company in backend first
@@ -163,7 +161,6 @@ function CompanySignup() {
           >
             <GoogleIcon /> Sign up with Google
           </button>
-        </form>
         </form>
 
       <p style={{ textAlign: 'center', marginTop: '1.5rem', fontSize: '0.82rem', color: 'var(--text3)' }}>
