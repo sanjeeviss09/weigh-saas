@@ -9,6 +9,78 @@ function apiH(email) {
   return { 'x-admin-email': email, 'Content-Type': 'application/json' };
 }
 
+// ─── Respond to Operator Request Modal ──────────────────────
+function RespondModal({ request, companies, email, onClose, onResponded }) {
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [adminMessage, setAdminMessage] = useState('Your request for a join code has been approved. Please find the details below.');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const company = companies.find(c => c.id === selectedCompanyId);
+
+  const submit = async () => {
+    setLoading(true); setError('');
+    try {
+      const res = await fetch(`${API}/super/operator-requests/${request.id}/respond`, {
+        method: 'POST',
+        headers: apiH(email),
+        body: JSON.stringify({
+          message: adminMessage,
+          join_code: company?.join_code || null
+        })
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.detail || 'Failed to send response');
+      }
+      onResponded();
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:2000, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(10px)' }}>
+      <div className="card-luxury" style={{ maxWidth:540, width:'100%' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
+          <div>
+            <h3 style={{ fontWeight:900, fontSize:'1.25rem', color:'var(--text)' }}>Respond to {request.name}</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>Sending to: <span style={{ color:'var(--primary)' }}>{request.contact}</span></p>
+          </div>
+          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
+        </div>
+
+        <div className="form-group" style={{ marginBottom:'1.5rem' }}>
+          <label className="form-label">Attach Join Code (Optional)</label>
+          <select className="input-premium" style={{ width:'100%', background:'var(--bg)' }} value={selectedCompanyId} onChange={e => setSelectedCompanyId(e.target.value)}>
+            <option value="">-- No join code --</option>
+            {companies.map(c => <option key={c.id} value={c.id}>Allocate to: {c.name}</option>)}
+          </select>
+          {company && <div style={{ marginTop:'0.5rem', fontSize:'0.75rem', color:'var(--success)', fontWeight:700 }}>Allocating Join Code: {company.join_code}</div>}
+        </div>
+
+        <div className="form-group" style={{ marginBottom:'1.5rem' }}>
+          <label className="form-label">Message to User</label>
+          <textarea className="input-premium" style={{ width:'100%', minHeight:120, fontSize:'0.85rem' }} 
+            value={adminMessage} onChange={e => setAdminMessage(e.target.value)} />
+        </div>
+
+        {error && <div className="alert alert-error mb-2">{error}</div>}
+
+        <div style={{ display:'flex', gap:'0.75rem', marginTop:'1.5rem' }}>
+          <button className="btn-premium-gold" onClick={submit} disabled={loading} style={{ flex:1 }}>
+            {loading ? <span className="spinner" /> : <><CheckCircle size={16} /> Send Response</>}
+          </button>
+          <button className="nav-item-premium" onClick={onClose} style={{ width:'auto', padding:'0 1.5rem', background:'var(--surface2)' }}>Cancel</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Animated Counter ───────────────────────────────────────────────────────
 function AnimatedCounter({ value, duration = 1500, suffix = "" }) {
   const [count, setCount] = useState(0);
@@ -55,23 +127,27 @@ export default function AdminPortal({ userEmail }) {
   const [newCustomCode, setNewCustomCode] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [copied, setCopied] = useState('');
+  const [opRequests, setOpRequests] = useState([]);
+  const [activeRequest, setActiveRequest] = useState(null);
 
   const isAuthorized = userEmail?.toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase().trim();
 
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [sRes, cRes, eRes, wRes] = await Promise.all([
+      const [sRes, cRes, eRes, wRes, rRes] = await Promise.all([
         fetch(`${API}/super/stats`, { headers: apiH(userEmail) }),
         fetch(`${API}/super/companies`, { headers: apiH(userEmail) }),
         fetch(`${API}/super/errors`, { headers: apiH(userEmail) }),
         fetch(`${API}/super/all-weighments`, { headers: apiH(userEmail) }),
+        fetch(`${API}/super/operator-requests`, { headers: apiH(userEmail) }),
       ]);
-      const [s, c, e, w] = await Promise.all([sRes.json(), cRes.json(), eRes.json(), wRes.json()]);
+      const [s, c, e, w, r] = await Promise.all([sRes.json(), cRes.json(), eRes.json(), wRes.json(), rRes.json()]);
       setStats(s);
       setWeighbridges(c.data || []);
       setErrors(e.data || []);
       setAllWeighments(w.data || []);
+      setOpRequests(r.data || []);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
   };
@@ -135,6 +211,7 @@ export default function AdminPortal({ userEmail }) {
 
   return (
     <div className="page-content">
+      {activeRequest && <RespondModal request={activeRequest} companies={weighbridges} email={userEmail} onClose={() => setActiveRequest(null)} onResponded={fetchAllData} />}
       {/* Header Area */}
       <div className="page-header anim-fade-up" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'clamp(1.5rem, 4vw, 3rem)', flexWrap: 'wrap', gap: '1rem' }}>
         <div style={{ flex: '1 1 300px' }}>
@@ -178,6 +255,7 @@ export default function AdminPortal({ userEmail }) {
         {[
           { id: 'join-codes', label: 'Provisioning', icon: <KeyRound size={16} /> },
           { id: 'companies', label: 'Nodes', icon: <Building2 size={16} /> },
+          { id: 'requests',  label: `Requests (${opRequests.filter(req => req.status === 'pending').length})`, icon: <UserPlus size={16} /> },
           { id: 'monitor', label: 'Stream', icon: <Activity size={16} /> },
           { id: 'logs', label: 'Diagnostics', icon: <Database size={16} /> },
         ].map(t => (
@@ -350,6 +428,46 @@ export default function AdminPortal({ userEmail }) {
                    ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* OPERATOR REQUESTS TAB */}
+          {activeTab === 'requests' && (
+            <div className="table-wrap anim-fade-in">
+              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', minWidth: '900px' }}>
+                <thead style={{ background: 'var(--surface2)' }}>
+                  <tr>
+                    <th style={{ textAlign: 'left', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Requester</th>
+                    <th style={{ textAlign: 'left', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Contact Info</th>
+                    <th style={{ textAlign: 'left', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Message</th>
+                    <th style={{ textAlign: 'center', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Status</th>
+                    <th style={{ textAlign: 'right', padding: '1.25rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {opRequests.length === 0 ? (
+                    <tr><td colSpan={5} style={{ textAlign: 'center', padding: '5rem', color: 'var(--text3)' }}>No join requests on the network.</td></tr>
+                  ) : opRequests.map((r, i) => (
+                    <tr key={r.id} className="table-row-premium" style={{ animationDelay: `${i * 0.05}s` }}>
+                      <td style={{ padding: '1.25rem', fontWeight: 900, color: 'var(--text)' }}>{r.name}</td>
+                      <td style={{ padding: '1.25rem', color: 'var(--primary)', fontWeight: 600 }}>{r.contact}</td>
+                      <td style={{ padding: '1.25rem', fontSize: '0.8rem', color: 'var(--text2)', maxWidth: '300px' }}>{r.message || '—'}</td>
+                      <td style={{ padding: '1.25rem', textAlign: 'center' }}>
+                        <span style={{ fontSize: '0.65rem', padding: '0.2rem 0.6rem', borderRadius: '4px', background: r.status === 'pending' ? 'rgba(245,158,11,0.1)' : 'rgba(34,197,94,0.1)', color: r.status === 'pending' ? 'var(--warning)' : 'var(--success)', fontWeight: 900, textTransform: 'uppercase' }}>
+                          {r.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '1.25rem', textAlign: 'right' }}>
+                        {r.status === 'pending' && (
+                          <button className="btn-premium-gold" style={{ padding: '0.4rem 1rem', fontSize: '0.7rem', borderRadius: '8px' }} onClick={() => setActiveRequest(r)}>
+                            Respond
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

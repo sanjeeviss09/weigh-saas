@@ -149,7 +149,6 @@ function AppShell({ session }) {
       { to: '/agent-setup',  icon: <Truck size={17} />,       label: 'PC Agent Hub' },
       { to: '/weighments',   icon: <Database size={17} />,    label: 'Global Weighments' },
       { to: '/analytics',    icon: <BarChart2 size={17} />,   label: 'Global Analytics' },
-      { to: '/accounts',     icon: <IndianRupee size={17} />, label: 'Financial Hub' },
       { to: '/corrections',  icon: <Wrench size={17} />,      label: 'Global Errors' },
       { to: '/settings',     icon: <Settings size={17} />,    label: 'Settings' },
     ];
