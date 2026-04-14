@@ -165,12 +165,12 @@ function CreateOperatorModal({ companies, onClose }) {
     <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
       <div className="card-luxury" style={{ maxWidth:460, width:'100%' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
-          <h3 style={{ fontWeight:700 }}>Create Weighment Operator Account</h3>
+          <h3 style={{ fontWeight:700 }}>Generate Join Code</h3>
           <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="alert alert-info" style={{ marginBottom:'1.5rem', fontSize:'0.875rem' }}>
-          To create a weighment staff account: select the company below, copy the <strong>Join Code</strong>, and share it with the operator. They should go to <strong>/signup-operator</strong> and enter this code to register.
+          Select a company to get its unique join code. You can share this manually or use the "Respond" button in the requests tab to email it automatically.
         </div>
 
         <div className="form-group">
@@ -190,15 +190,82 @@ function CreateOperatorModal({ companies, onClose }) {
                 {copied ? <CheckCircle size={14} color="var(--success)" /> : <><Copy size={14} /> Copy</>}
               </button>
             </div>
-            <p style={{ fontSize:'0.75rem', color:'var(--text3)', marginTop:'0.5rem' }}>
-              Share this code with the operator. They will go to{' '}
-              <strong style={{ color:'var(--primary)' }}>{window.location.origin}/signup-operator</strong>{' '}
-              and enter it to create their account.
-            </p>
           </div>
         )}
 
         <button className="btn btn-secondary btn-full mt-2" onClick={onClose}>Close</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Respond to Operator Request Modal ──────────────────────
+function RespondModal({ request, companies, email, onClose, onResponded }) {
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
+  const [adminMessage, setAdminMessage] = useState('Your request for a join code has been approved. Please find the details below.');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const company = companies.find(c => c.id === selectedCompanyId);
+
+  const submit = async () => {
+    setLoading(true); setError('');
+    try {
+      const res = await fetch(`${API}/super/operator-requests/${request.id}/respond`, {
+        method: 'POST',
+        headers: apiH(email),
+        body: JSON.stringify({
+          message: adminMessage,
+          join_code: company?.join_code || null
+        })
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        throw new Error(d.detail || 'Failed to send response');
+      }
+      onResponded();
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
+      <div className="card-luxury" style={{ maxWidth:540, width:'100%' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
+          <div>
+            <h3 style={{ fontWeight:700 }}>Respond to {request.name}</h3>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>A notification will be sent to: <span style={{ color:'var(--primary)' }}>{request.contact}</span></p>
+          </div>
+          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Attach Join Code (Optional)</label>
+          <select className="select" style={{ width:'100%' }} value={selectedCompanyId} onChange={e => setSelectedCompanyId(e.target.value)}>
+            <option value="">-- No join code (Reject/Info only) --</option>
+            {companies.map(c => <option key={c.id} value={c.id}>Allocate to: {c.name}</option>)}
+          </select>
+          {company && <div style={{ marginTop:'0.4rem', fontSize:'0.75rem', color:'var(--success)' }}>Allocating Join Code: <strong>{company.join_code}</strong></div>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Email Message Body</label>
+          <textarea className="input" style={{ width:'100%', minHeight:100, fontSize:'0.85rem' }} 
+            value={adminMessage} onChange={e => setAdminMessage(e.target.value)} />
+        </div>
+
+        {error && <div className="alert alert-error mb-2">{error}</div>}
+
+        <div style={{ display:'flex', gap:'0.75rem', marginTop:'1.5rem' }}>
+          <button className="btn btn-primary btn-full" onClick={submit} disabled={loading}>
+            {loading ? <span className="spinner" /> : <><Send size={16} /> Send Response & Email</>}
+          </button>
+          <button className="btn btn-secondary btn-full" onClick={onClose}>Cancel</button>
+        </div>
       </div>
     </div>
   );
@@ -216,6 +283,7 @@ export default function SuperAdmin({ userEmail }) {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showAddCompany, setShowAddCompany] = useState(false);
   const [showCreateOp, setShowCreateOp] = useState(false);
+  const [activeRequest, setActiveRequest] = useState(null);
 
   const isAuthorized = userEmail?.toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase().trim();
 
@@ -262,6 +330,7 @@ export default function SuperAdmin({ userEmail }) {
       {viewCompany    && <TxModal company={viewCompany} email={userEmail} onClose={() => setViewCompany(null)} />}
       {showAddCompany && <AddCompanyModal email={userEmail} onClose={() => setShowAddCompany(false)} onCreated={fetchAll} />}
       {showCreateOp   && <CreateOperatorModal companies={companies} onClose={() => setShowCreateOp(false)} />}
+      {activeRequest  && <RespondModal request={activeRequest} companies={companies} email={userEmail} onClose={() => setActiveRequest(null)} onResponded={fetchAll} />}
 
       {deleteConfirm && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter: 'blur(4px)' }}>
@@ -409,10 +478,12 @@ export default function SuperAdmin({ userEmail }) {
                         </span>
                       </td>
                       <td>
-                        {r.status === 'pending' && (
-                          <button className="btn btn-primary" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }} onClick={() => handleApproveOp(r.id)}>
-                            Approve
+                        {r.status === 'pending' ? (
+                          <button className="btn btn-primary" style={{ padding: '0.35rem 0.8rem', fontSize: '0.78rem' }} onClick={() => setActiveRequest(r)}>
+                            Respond
                           </button>
+                        ) : (
+                          <span style={{ fontSize:'0.7rem', color:'var(--text3)' }}>Processed</span>
                         )}
                       </td>
                     </tr>

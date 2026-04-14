@@ -47,6 +47,7 @@ function CompanySignup() {
   const navigate = useNavigate();
   const [companyName, setCompanyName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,7 @@ function CompanySignup() {
       const res = await fetch(`${API}/company/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: companyName.trim(), plan: 'free' }),
+        body: JSON.stringify({ name: companyName.trim(), phone: phone.trim(), plan: 'free' }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -131,6 +132,11 @@ function CompanySignup() {
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>EMAIL ADDRESS</label>
             <input className="input-premium" type="email" required placeholder="admin@yourcompany.com"
               value={email} onChange={e => setEmail(e.target.value)} style={{ width: '100%' }} />
+          </div>
+          <div style={{ marginBottom: '1rem' }}>
+            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>PHONE NUMBER</label>
+            <input className="input-premium" type="tel" required placeholder="e.g. +91 98765-43210"
+              value={phone} onChange={e => setPhone(e.target.value)} style={{ width: '100%' }} />
           </div>
           <div style={{ marginBottom: '1.5rem' }}>
             <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 700, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>PASSWORD</label>
@@ -232,13 +238,12 @@ function OperatorSignup() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: reqName.trim(), contact: reqContact.trim(), message: reqMessage.trim() }),
       });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || 'Failed to send request.');
-      }
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || 'Failed to send request.');
       setReqSent(true);
     } catch (err) {
-      setError(err.message);
+      console.error("Request Error:", err);
+      setError(err.message || 'An unexpected error occurred. Please try again.');
     } finally {
       setReqLoading(false);
     }

@@ -472,6 +472,7 @@ def get_active_weighment(vehicle_number: str, company_id: str = Query(...)):
 
 class RegisterCompanyRequest(BaseModel):
     name: str
+    phone: Optional[str] = None
     plan: Optional[str] = "standard"
     custom_join_code: Optional[str] = None
 
@@ -496,7 +497,8 @@ def register_company(req: RegisterCompanyRequest):
             "name": name,
             "api_key": api_key,
             "join_code": join_code,
-            "plan": req.plan
+            "plan": req.plan,
+            "phone": req.phone
         }).execute()
         if not res.data:
             raise HTTPException(status_code=500, detail="Failed to create station")
@@ -581,3 +583,51 @@ def approve_operator_request(request_id: str, x_admin_email: Optional[str] = Hea
     verify_super_admin(x_admin_email)
     res = db.table("operator_requests").update({"status": "approved"}).eq("id", request_id).execute()
     return {"status": "success"}
+
+class OperatorResponse(BaseModel):
+    message: str
+    join_code: Optional[str] = None
+
+def send_email_mock(to_contact: str, subject: str, body: str):
+    """
+    Mock email/SMS function. 
+    In production, replace this with Resend, SendGrid, or Twilio.
+    """
+    print(f"\n--- [OUTGOING NOTIFICATION] ---")
+    print(f"TO: {to_contact}")
+    print(f"SUBJECT: {subject}")
+    print(f"BODY:\n{body}")
+    print(f"--- [END NOTIFICATION] ---\n")
+    return True
+
+@app.post("/super/operator-requests/{request_id}/respond")
+def respond_operator_request(request_id: str, req: OperatorResponse, x_admin_email: Optional[str] = Header(None)):
+    """Admin responds to a request and triggers a notification to the user."""
+    verify_super_admin(x_admin_email)
+    
+    # 1. Fetch request details
+    req_res = db.table("operator_requests").select("*").eq("id", request_id).execute()
+    if not req_res.data:
+        raise HTTPException(status_code=404, detail="Request not found")
+    
+    request_data = req_res.data[0]
+    
+    # 2. Update status
+    db.table("operator_requests").update({
+        "status": "responded",
+        "admin_message": req.message
+    }).eq("id", request_id).execute()
+    
+    # 3. "Send" Email/SMS
+    subject = "Update regarding your Join Request - LogiRate"
+    body = f"Hello {request_data['name']},\n\n"
+    body += f"Administrator Message: {req.message}\n\n"
+    if req.join_code:
+        body += f"YOUR JOIN CODE: {req.join_code}\n"
+        body += f"Use this code at {os.environ.get('VITE_APP_URL', 'http://localhost:5173')}/signup?mode=operator to join.\n\n"
+    
+    body += "Regards,\nLogiRate Team"
+    
+    send_email_mock(request_data['contact'], subject, body)
+    
+    return {"status": "success", "message": "Response sent to user"}
