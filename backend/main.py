@@ -501,7 +501,7 @@ def register_company(req: RegisterCompanyRequest):
             "phone": req.phone
         }).execute()
         if not res.data:
-            raise HTTPException(status_code=500, detail="Failed to create station")
+            raise HTTPException(status_code=500, detail="Failed to create station in database")
         company = res.data[0]
         return {
             "company_id": company["id"],
@@ -510,7 +510,10 @@ def register_company(req: RegisterCompanyRequest):
             "api_key": company["api_key"]
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_msg = str(e)
+        if "column companies.phone does not exist" in error_msg:
+            raise HTTPException(status_code=500, detail="Database Error: Missing 'phone' column in companies table. Please run the SQL fix.")
+        raise HTTPException(status_code=500, detail=f"Database Error: {error_msg}")
 
 @app.get("/agent/config/{company_id}")
 def get_agent_config(company_id: str):
@@ -560,15 +563,24 @@ async def api_chat(req: ChatRequest):
         return {"response": "I'm not sure about that, but our command centre is available 24/7 on WhatsApp (+91 95005 93997). Shall I link you to them?"}
 
 @app.post("/operator-code-request")
+@app.post("/operator-code-request")
 def create_operator_code_request(req: OperatorCodeRequest):
     """Stores a request for a join code from a potential operator."""
-    res = db.table("operator_requests").insert({
-        "name": req.name,
-        "contact": req.contact,
-        "message": req.message,
-        "status": "pending"
-    }).execute()
-    return {"status": "success", "data": res.data[0]}
+    try:
+        res = db.table("operator_requests").insert({
+            "name": req.name,
+            "contact": req.contact,
+            "message": req.message,
+            "status": "pending"
+        }).execute()
+        if not res.data:
+            raise HTTPException(status_code=500, detail="Failed to save request to database")
+        return {"status": "success", "data": res.data[0]}
+    except Exception as e:
+        error_msg = str(e)
+        if "operator_requests" in error_msg:
+            raise HTTPException(status_code=500, detail="Database Error: 'operator_requests' table not found. Please run the SQL fix.")
+        raise HTTPException(status_code=500, detail=f"Database Error: {error_msg}")
 
 @app.get("/super/operator-requests")
 def get_operator_requests(x_admin_email: Optional[str] = Header(None)):
