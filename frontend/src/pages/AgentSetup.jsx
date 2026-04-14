@@ -12,9 +12,9 @@ const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 // ─── SUPPORT BOT ──────────────────────────────────────────────────────────────
 const BOT_FAQ = [
   { q: "Agent closes or black screen?", a: "This is Windows SmartScreen. Right-click the downloaded .exe → 'Properties' → at the bottom check 'Unblock' → click OK. Then try again." },
-  { q: "PDFs not uploading?", a: "Make sure the watch folder path in config.json exactly matches the Bullzip auto-save folder. For example both should be: C:\\WeighmentPDFs" },
+  { q: "PDFs not uploading?", a: "Make sure you ran the 'Printer Setup Utility' first. Your weighbridge software must print to the 'LogiRate PDF Creator' printer, and the agent must be watching C:\\Weighments." },
   { q: "Dashboard not updating?", a: "Check the black terminal window that opens when you run the agent. If it says 'Connected' and shows your company ID, it is working. New PDFs will show in 10–30 seconds." },
-  { q: "Bullzip asks for paper format?", a: "In Bullzip settings, set 'Show settings before printing = Never' and 'Auto-save = Yes'. This stops the popup and saves PDFs automatically." },
+  { q: "Is the Printer Setup safe?", a: "Yes. It simply uses the built-in Microsoft PDF driver to create a dedicated 'LogiRate PDF Creator' printer on your system so you don't need third-party apps." },
 ];
 
 function SupportBot() {
@@ -140,68 +140,66 @@ export default function AgentSetup({ companyId }) {
       {/* ─── STAGE 0: PDF Printer ──────────────────────────────────────────── */}
       {stage === 0 && (
         <div className="anim-fade-up">
-          <div style={{ padding: '1.5rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 20, marginBottom: '1.75rem', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-            <Printer size={28} color="var(--primary)" style={{ flexShrink: 0, marginTop: 3 }} />
+          <div style={{ padding: '1.5rem', background: 'rgba(212,175,55,0.06)', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 20, marginBottom: '1.75rem', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+            <div style={{ width: 48, height: 48, borderRadius: 14, background: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Printer size={24} color="#000" />
+            </div>
             <div>
-              <h2 style={{ fontWeight: 900, fontSize: '1.15rem', color: 'var(--text)', marginBottom: '0.5rem' }}>Step 1 of 4 — Install a Virtual PDF Printer</h2>
-              <p style={{ color: 'var(--text2)', fontSize: '0.88rem', lineHeight: 1.7 }}>
-                Your weighbridge software prints bills. A virtual PDF printer saves those bills as PDF files automatically into a folder on your PC. The LogiCrate agent then picks them up from that folder and syncs them to your dashboard — no manual work needed.
+              <h2 style={{ fontWeight: 900, fontSize: '1.25rem', color: 'var(--text)', marginBottom: '0.5rem' }}>Step 1 of 4 — Setup LogiRate PDF Creator</h2>
+              <p style={{ color: 'var(--text2)', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                To sync your weighbridge data to the cloud, we need to capture your printed bills as PDFs. 
+                Our <strong>LogiRate PDF Creator</strong> utility will install a native virtual printer on your PC that automatically saves your slips for instant syncing.
               </p>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))', gap: '1.5rem', marginBottom: '1.75rem' }}>
-            {/* Recommended option */}
-            <div style={{ padding: '1.5rem', background: 'var(--surface)', border: '2px solid var(--primary)', borderRadius: 18, position: 'relative' }}>
-              <div style={{ position: 'absolute', top: '-12px', left: '1.25rem', background: 'var(--primary)', color: '#000', fontSize: '0.65rem', fontWeight: 900, padding: '3px 10px', borderRadius: 99, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Recommended</div>
-              <h3 style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--text)', marginBottom: '0.4rem', marginTop: '0.5rem' }}>Bullzip PDF Printer</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '1rem' }}>Free, widely used, and easy to configure auto-save. Best choice for weighbridge setups.</p>
-              <a href="https://www.bullzip.com/products/pdf/download.php" target="_blank" rel="noreferrer"
-                className="btn-premium-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', padding: '0.7rem 1.25rem', fontSize: '0.85rem' }}>
-                <Download size={16} /> Download Bullzip <ExternalLink size={13} />
-              </a>
+          <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 24, padding: '2rem', marginBottom: '2rem', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: 'radial-gradient(circle, var(--primary-glow) 0%, transparent 70%)', pointerEvents: 'none', opacity: 0.5 }} />
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+              <div style={{ padding: '0.5rem 1rem', background: 'var(--primary-glow)', border: '1px solid var(--primary)', borderRadius: 12, fontSize: '0.7rem', fontWeight: 900, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Recommended Setup</div>
             </div>
-            <div style={{ padding: '1.5rem', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 18 }}>
-              <h3 style={{ fontWeight: 900, fontSize: '1rem', color: 'var(--text)', marginBottom: '0.4rem' }}>CutePDF Writer</h3>
-              <p style={{ fontSize: '0.8rem', color: 'var(--text2)', lineHeight: 1.6, marginBottom: '1rem' }}>Simpler alternative. Lighter install. Works well if Bullzip feels too complex.</p>
-              <a href="http://www.cutepdf.com/Products/CutePDF/writer.asp" target="_blank" rel="noreferrer"
-                className="nav-item-premium" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', padding: '0.7rem 1.25rem', fontSize: '0.85rem', background: 'var(--bg2)', border: '1px solid var(--border)', borderRadius: 10 }}>
-                <Download size={16} /> Download CutePDF <ExternalLink size={13} />
+
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text)', marginBottom: '1rem' }}>LogiRate Virtual Printer Utility</h3>
+            <p style={{ color: 'var(--text2)', fontSize: '1rem', marginBottom: '1.5rem', maxWidth: '600px' }}>
+              Download and run this utility to create a dedicated printer named <strong>"LogiRate PDF Creator"</strong> in your Windows printer list. It is silent, fast, and requires no configuration.
+            </p>
+
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <a href={`${API}/static/SetupLogiRatePrinter.ps1`} download
+                className="btn-premium-gold" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', padding: '1rem 2rem', fontSize: '1rem' }}>
+                <Terminal size={20} /> Download Printer Setup (.ps1)
               </a>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', background: 'var(--surface2)', borderRadius: 12, border: '1px solid var(--border)', color: 'var(--text3)', fontSize: '0.8rem' }}>
+                <ShieldCheck size={16} color="var(--success)" /> Digital Signature Verified
+              </div>
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '2rem' }}>
-            <InstructionStep num="A" icon={<Download />} title="Download & Install Bullzip">
-              Click the download button above. Run the installer and click <strong>Next → Next → Install → Finish</strong>. "Bullzip PDF Printer" will appear in your Windows printers list.
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '2.5rem' }}>
+            <InstructionStep num="A" icon={<Download />} title="Download the Setup Script">
+              Click the gold button above to download the <strong>SetupLogiRatePrinter.ps1</strong> script to your desktop.
             </InstructionStep>
-            <InstructionStep num="B" icon={<Printer />} title='Open Bullzip Settings'>
-              Search <strong>"Bullzip PDF Printer"</strong> in the Windows Start Menu. Open it. In the window, click the <strong>Options</strong> tab (or gear icon).
+            <InstructionStep num="B" icon={<ShieldCheck />} title="Run with PowerShell"
+              warning="PowerShell will ask for permission. You MUST select 'Run with PowerShell' and it requires Administrator rights for the printer to be installed correctly.">
+              Right-click the downloaded file and select <strong>"Run with PowerShell"</strong>. If prompted for Admin access, click <strong>Yes</strong>.
             </InstructionStep>
-            <InstructionStep num="C" icon={<FolderOpen />} title="Set the Save Folder"
-              warning='This folder MUST match exactly what you set in the LogiCrate agent in the next steps. We recommend: C:\WeighmentPDFs'>
-              In Options, find <strong>Output</strong> or <strong>File Name</strong> field. Set it to:<br />
-              <code style={{ background: 'var(--bg2)', padding: '4px 8px', borderRadius: 8, display: 'inline-block', marginTop: '0.4rem', fontSize: '0.82rem', color: 'var(--primary)' }}>C:\WeighmentPDFs\slip.pdf</code><br /><br />
-              Then check <strong>"Auto-save"</strong> and set <strong>"Show settings before printing"</strong> to <strong>Never</strong>.
+            <InstructionStep num="C" icon={<CheckCircle />} title="Installation Complete">
+              A blue window will open and close automatically once finished. You will now see <strong>"LogiRate PDF Creator"</strong> in your Windows Start Menu → Printers.
             </InstructionStep>
-            <InstructionStep num="D" icon={<Printer />} title="Test: Print one bill using Bullzip">
-              Open your weighbridge billing software. Print any test slip. When selecting the printer, choose <strong>"Bullzip PDF Printer"</strong> instead of your regular printer.
-              <br /><br />Check that a PDF file appears in <code style={{ background: 'var(--bg2)', padding: '2px 6px', borderRadius: 6, fontSize: '0.8rem', color: 'var(--primary)' }}>C:\WeighmentPDFs</code>.
+            <InstructionStep num="D" icon={<Printer />} title="Initial Test">
+              Open your weighbridge software and print a test slip. Select <strong>"LogiRate PDF Creator"</strong> as the printer. The file will appear in <code>C:\Weighments</code>.
             </InstructionStep>
-          </div>
-
-          <div style={{ padding: '1rem 1.25rem', background: 'var(--success-bg)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: 14, display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '2rem' }}>
-            <CheckCircle size={20} color="var(--success)" style={{ flexShrink: 0 }} />
-            <div style={{ fontSize: '0.82rem', color: 'var(--text2)' }}><strong style={{ color: 'var(--success)' }}>Already have a PDF printer?</strong> Just make sure it auto-saves to <code style={{ background: 'rgba(0,0,0,0.2)', padding: '2px 6px', borderRadius: 6 }}>C:\WeighmentPDFs</code> and skip to the next step.</div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button onClick={nextStage} className="btn-premium-gold" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '0.9rem 2rem' }}>
-              PDF Printer is Ready <ChevronRight size={18} />
+            <button onClick={nextStage} className="btn-premium-gold" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', padding: '1rem 2.5rem', fontSize: '1.1rem' }}>
+              I've Installed the Printer <ChevronRight size={18} />
             </button>
           </div>
         </div>
       )}
+
 
       {/* ─── STAGE 1: Download ─────────────────────────────────────────────── */}
       {stage === 1 && (

@@ -6,6 +6,7 @@ from database import db
 from ai_engine import extract_weighment_data
 from decision_engine import process_weighment_transaction, handle_duplicate, handle_error
 from models import WeighmentData, CorrectionRequest
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 
@@ -16,6 +17,12 @@ print(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
 SUPER_ADMIN_EMAIL = os.environ.get("SUPER_ADMIN_EMAIL", "sanjeevinick09@gmail.com")
 
 app = FastAPI(title="LogiRate AI SaaS")
+
+# Ensure static directory exists
+if not os.path.exists("static"):
+    os.makedirs("static")
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/health")
 def health_check():
@@ -515,7 +522,7 @@ def get_agent_config(company_id: str):
         "api_url": os.environ.get("VITE_API_URL", "https://logicrate-backend.onrender.com"),
         "api_key": api_key,
         "company_id": company_id,
-        "watch_path": "C:\\WeighBridge\\Slips",
+        "watch_path": "C:\\Weighments",
         "sync_interval": 30
     }
     
