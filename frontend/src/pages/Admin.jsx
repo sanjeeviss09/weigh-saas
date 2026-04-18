@@ -74,7 +74,11 @@ export default function Admin({ companyId, userEmail }) {
             </div>
             <div style={{ padding: '1.25rem', background: 'var(--bg2)', borderRadius: 18, border: '1px solid var(--border)' }}>
                <div style={{ fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', fontWeight: 800, marginBottom: '6px', letterSpacing: '0.05em' }}>Commissioned At</div>
-               <div style={{ fontWeight: 800, color: 'var(--text)' }}>{new Date(company?.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+               <div style={{ fontWeight: 800, color: 'var(--text)' }}>
+                 {company?.created_at 
+                   ? new Date(company.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
+                   : 'PROVISIONING...'}
+               </div>
             </div>
           </div>
         </div>
@@ -89,13 +93,13 @@ export default function Admin({ companyId, userEmail }) {
                 <Fingerprint size={22} color="var(--primary)" />
               </div>
               <div>
-                <h3 style={{ fontWeight: 900, color: 'var(--text)', fontSize: '1.1rem' }}>Operator Invitation</h3>
-                <p style={{ color: 'var(--text3)', fontSize: '0.8rem' }}>Node Provisioning Credentials</p>
+                <h3 style={{ fontWeight: 900, color: 'var(--text)', fontSize: '1.1rem' }}>Station Join Code</h3>
+                <p style={{ color: 'var(--text3)', fontSize: '0.8rem' }}>For operators & PC Agent setup</p>
               </div>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
-              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Invitation Cipher</label>
+              <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Join Code</label>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
                 <input className="input-premium" value={company?.join_code || '—'} readOnly style={{ flex: 1, fontFamily: 'monospace', fontWeight: 900, letterSpacing: '4px', textAlign: 'center' }} />
                 <button className="btn-premium-gold" onClick={() => copy(company?.join_code, 'code')} style={{ width: 'auto', padding: '0 1.5rem' }}>
@@ -104,7 +108,7 @@ export default function Admin({ companyId, userEmail }) {
               </div>
             </div>
             <div style={{ padding: '1rem', background: 'var(--primary-glow)', border: '1px dashed var(--border)', borderRadius: 16, fontSize: '0.75rem', color: 'var(--text3)', lineHeight: 1.6 }}>
-               Operators must use this code during registration to link their terminals to this node. Keep this secure.
+               <strong style={{ color: 'var(--text2)' }}>Two uses:</strong> (1) Operators enter this code during signup to join your station. (2) The PC Agent asks for this code on first run to auto-connect to your dashboard. Keep this secure.
             </div>
           </div>
 
@@ -115,23 +119,23 @@ export default function Admin({ companyId, userEmail }) {
                 <KeyRound size={22} color="var(--primary)" />
               </div>
               <div>
-                <h3 style={{ fontWeight: 900, color: 'var(--text)', fontSize: '1.1rem' }}>Edge Auth Key</h3>
-                <p style={{ color: 'var(--text3)', fontSize: '0.8rem' }}>Low-latency Hardware Uplink</p>
+                <h3 style={{ fontWeight: 900, color: 'var(--text)', fontSize: '1.1rem' }}>API Secret Key</h3>
+                <p style={{ color: 'var(--text3)', fontSize: '0.8rem' }}>Used internally by the PC Agent</p>
               </div>
             </div>
 
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', marginBottom: '0.75rem', textTransform: 'uppercase' }}>Encrypted Token</label>
               <div style={{ display: 'flex', gap: '0.75rem' }}>
-                <input className="input-premium" value={company?.api_key || '—'} readOnly type="password" style={{ flex: 1, fontFamily: 'monospace', letterSpacing: '4px' }} />
-                <button className="nav-item-premium" onClick={() => copy(company?.api_key, 'key')} style={{ width: 'auto', padding: '0 1.5rem', background: 'var(--bg2)', fontSize: '0.7rem' }}>
-                  {copied === 'key' ? 'COPIED' : 'COPY KEY'}
+                <input className="input-premium" value={company?.api_key || '—'} readOnly type="password" style={{ flex: 1, fontFamily: 'monospace', letterSpacing: '4px', background: 'var(--bg)' }} />
+                <button className="btn-premium-gold" onClick={() => copy(company?.api_key, 'key')} style={{ width: 'auto', padding: '0 1.5rem', fontSize: '0.75rem', height: 48 }}>
+                  {copied === 'key' ? 'COPIED' : 'COPY'}
                 </button>
               </div>
             </div>
             <div style={{ padding: '1rem', background: 'var(--primary-glow)', border: '1px dashed var(--border)', borderRadius: 16, fontSize: '0.75rem', color: 'var(--text3)', lineHeight: 1.6, display: 'flex', gap: '0.75rem' }}>
                <Zap size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
-               <span>Required for PC Agent v4.2 integration. Inject this secret into your <code>config.json</code> environment.</span>
+               <span>The PC Agent fetches this key automatically when you enter your Join Code. <strong>No need to copy this manually</strong> — it's shown here for reference only.</span>
             </div>
           </div>
 

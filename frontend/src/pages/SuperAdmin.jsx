@@ -3,13 +3,12 @@ import { Building2, AlertTriangle, Trash2, ChevronRight, X, Scale, RefreshCw, Pl
 import { supabase } from '../lib/supabaseClient';
 
 const SUPER_ADMIN_EMAIL = 'sanjeevinick09@gmail.com';
-const API = 'http://localhost:8000';
+const API = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
 function apiH(email) {
   return { 'x-admin-email': email, 'Content-Type': 'application/json' };
 }
 
-// ─── Transactions Modal ───────────────────────────────────────
 function TxModal({ company, email, onClose }) {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,42 +20,43 @@ function TxModal({ company, email, onClose }) {
   }, []);
 
   return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
-      <div className="card-luxury" style={{ width:'100%', maxWidth:820, maxHeight:'82vh', display:'flex', flexDirection:'column', overflow:'hidden' }}>
-        <div style={{ padding:'1.25rem 1.75rem', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+    <div style={{ position:'fixed', inset:0, background:'rgba(5,6,15,0.85)', zIndex:2100, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(1rem, 5vw, 2rem)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}>
+      <div className="card-luxury anim-scale-in" style={{ width:'100%', maxWidth:920, maxHeight:'85vh', display:'flex', flexDirection:'column', overflow:'hidden', borderRadius: 32 }}>
+        <div style={{ padding:'2.5rem', borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
           <div>
-            <h3 style={{ fontWeight:700 }}>{company.name}</h3>
-            <p style={{ fontSize:'0.78rem', color:'var(--text2)', marginTop:'0.15rem' }}>All weighment transactions</p>
+            <h3 style={{ fontWeight:900, fontSize: '1.5rem', letterSpacing: '-0.02em' }}>{company.name} ARCHIVE</h3>
+            <p style={{ fontSize:'0.85rem', color:'var(--text3)', marginTop:'0.25rem', fontWeight: 600 }}>Protocol transmission ledger for company node</p>
           </div>
-          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
+          <button className="nav-item-premium" style={{ width:'auto', padding:'0.6rem', background: 'var(--surface2)', borderRadius: 12, border: '1px solid var(--border)' }} onClick={onClose}><X size={22} /></button>
         </div>
-        <div style={{ overflowY:'auto', flex:1 }}>
+        <div style={{ overflowY:'auto', flex:1, padding: '0 1rem' }}>
           {loading ? (
-            <div style={{ padding:'3rem', textAlign:'center' }}><span className="spinner" /></div>
+            <div style={{ padding:'5rem', textAlign:'center' }}><span className="spinner" style={{ width: 40, height: 40 }} /></div>
           ) : rows.length === 0 ? (
-            <div style={{ padding:'3rem', textAlign:'center', color:'var(--text3)' }}>No transactions yet for this company.</div>
+            <div style={{ padding:'5rem', textAlign:'center', color:'var(--text3)', fontWeight: 600 }}>Zero transmissions logged for this node.</div>
           ) : (
-            <table style={{ width:'100%', borderCollapse:'collapse' }}>
+            <table style={{ width:'100%', borderCollapse:'separate', borderSpacing: '0 8px' }}>
               <thead>
-                <tr>{['Vehicle', 'Material', 'Gross', 'Tare', 'Net (kg)', 'Status', 'Date'].map(h => (
-                  <th key={h} style={{ padding:'0.75rem 1.25rem', textAlign:'left', fontSize:'0.7rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.08em', color:'var(--primary)', borderBottom:'1px solid var(--border)', background:'var(--surface)', whiteSpace:'nowrap' }}>{h}</th>
+                <tr>{['Vehicle', 'Material', 'Gross', 'Tare', 'Net (kg)', 'Status', 'Transmission'].map(h => (
+                  <th key={h} style={{ padding:'1rem 1.25rem', textAlign:'left', fontSize:'0.7rem', fontWeight:800, textTransform:'uppercase', letterSpacing:'0.12em', color:'var(--text3)', opacity: 0.6 }}>{h}</th>
                 ))}</tr>
               </thead>
               <tbody>
                 {rows.map((r, i) => (
-                  <tr key={i} style={{ borderBottom:'1px solid var(--border)' }}>
-                    <td style={{ padding:'0.85rem 1.25rem', fontFamily:'monospace', color:'var(--primary)', fontSize:'0.85rem' }}>{r.vehicle_number}</td>
-                    <td style={{ padding:'0.85rem 1.25rem', color:'var(--text2)', fontSize:'0.875rem' }}>{r.material || '—'}</td>
-                    <td style={{ padding:'0.85rem 1.25rem', color:'var(--text2)', fontSize:'0.875rem' }}>{r.gross_weight?.toLocaleString() || '—'}</td>
-                    <td style={{ padding:'0.85rem 1.25rem', color:'var(--text2)', fontSize:'0.875rem' }}>{r.tare_weight?.toLocaleString() || '—'}</td>
-                    <td style={{ padding:'0.85rem 1.25rem', color:'var(--success)', fontWeight:600 }}>{r.net_weight?.toLocaleString() || '—'}</td>
-                    <td style={{ padding:'0.85rem 1.25rem' }}>
-                      <span style={{ padding:'0.2rem 0.65rem', borderRadius:9999, fontSize:'0.7rem', fontWeight:700, textTransform:'uppercase', border:'1px solid', borderColor: r.status==='closed' ? 'var(--success)' : r.status==='error' ? 'var(--danger)' : 'var(--warning)', color: r.status==='closed' ? 'var(--success)' : r.status==='error' ? 'var(--danger)' : 'var(--warning)' }}>
-                        {r.status}
-                      </span>
+                  <tr key={i} className="table-row-premium anim-fade-in" style={{ animationDelay: `${0.1 + (i*0.04)}s` }}>
+                    <td style={{ padding:'1.25rem', fontFamily:'monospace', color:'var(--primary)', fontWeight: 800, fontSize:'0.9rem', background: 'var(--bg2)', borderRadius: '14px 0 0 14px', border: '1px solid var(--border)', borderRight: 'none' }}>{r.vehicle_number}</td>
+                    <td style={{ padding:'1.25rem', color:'var(--text)', fontWeight: 600, background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>{r.material || '—'}</td>
+                    <td style={{ padding:'1.25rem', color:'var(--text)', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>{r.gross_weight?.toLocaleString() || '—'}</td>
+                    <td style={{ padding:'1.25rem', color:'var(--text)', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>{r.tare_weight?.toLocaleString() || '—'}</td>
+                    <td style={{ padding:'1.25rem', color:'var(--success)', fontWeight:900, fontSize: '1.1rem', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>{r.net_weight?.toLocaleString() || '—'}</td>
+                    <td style={{ padding:'1.25rem', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: r.status==='closed' ? 'var(--success)' : r.status==='error' ? 'var(--danger)' : 'var(--warning)' }}></div>
+                        <span style={{ fontSize:'0.7rem', fontWeight:800, textTransform:'uppercase', color: r.status==='closed' ? 'var(--success)' : r.status==='error' ? 'var(--danger)' : 'var(--warning)' }}>{r.status}</span>
+                      </div>
                     </td>
-                    <td style={{ padding:'0.85rem 1.25rem', color:'var(--text3)', fontSize:'0.78rem' }}>
-                      {new Date(r.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })}
+                    <td style={{ padding:'1.25rem', color:'var(--text3)', fontWeight: 600, fontSize:'0.75rem', background: 'var(--bg2)', borderRadius: '0 14px 14px 0', border: '1px solid var(--border)', borderLeft: 'none' }}>
+                      {new Date(r.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', hour: '2-digit', minute: '2-digit' })}
                     </td>
                   </tr>
                 ))}
@@ -102,45 +102,48 @@ function AddCompanyModal({ email, onClose, onCreated }) {
   };
 
   return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
-      <div className="card-luxury" style={{ maxWidth:480, width:'100%' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
-          <h3 style={{ fontWeight:700 }}>Add New Company</h3>
-          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
+    <div style={{ position:'fixed', inset:0, background:'rgba(5,6,15,0.85)', zIndex:2100, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(1rem, 5vw, 2rem)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}>
+      <div className="card-luxury anim-scale-in" style={{ maxWidth:540, width:'100%', borderRadius: 32, padding: '2.5rem' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'2.5rem' }}>
+          <div>
+            <h3 style={{ fontWeight:900, fontSize: '1.4rem' }}>Node Provisioning</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text3)', fontWeight: 600 }}>Create a new company node on the global fabric</p>
+          </div>
+          <button className="nav-item-premium" style={{ width:'auto', padding:'0.6rem', borderRadius: 12 }} onClick={onClose}><X size={22} /></button>
         </div>
 
         {!result ? (
           <>
-            <div className="form-group">
-              <label className="form-label">Company / Business Name</label>
-              <input className="input" style={{ width:'100%' }} placeholder="e.g. Sharma Logistics" value={name} onChange={e => setName(e.target.value)} />
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <label className="form-label" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>Company / Business Name</label>
+              <input className="input-premium" style={{ width:'100%', background: 'var(--bg2)', padding: '1rem' }} placeholder="e.g. Sharma Logistics" value={name} onChange={e => setName(e.target.value)} />
             </div>
-            {error && <div className="alert alert-error mb-2">{error}</div>}
-            <button className="btn btn-primary btn-full btn-lg" onClick={create} disabled={loading || !name.trim()}>
-              {loading ? <><span className="spinner" /> Creating...</> : 'Create Company & Generate Codes'}
+            {error && <div className="alert alert-error mb-3">{error}</div>}
+            <button className="btn-premium-gold" onClick={create} disabled={loading || !name.trim()} style={{ height: 54 }}>
+              {loading ? <><span className="spinner" /> DEPLOYING...</> : 'CREATE COMPANY & GENERATE PROTOCOLS'}
             </button>
           </>
         ) : (
-          <>
-            <div className="alert alert-success" style={{ marginBottom:'1.5rem' }}>
-              ✓ Company <strong>{result.name}</strong> created successfully!
+          <div className="anim-fade-up">
+            <div className="alert alert-success" style={{ marginBottom:'2.5rem', borderRadius: 16 }}>
+              ✓ Company <strong>{result.name}</strong> has been provisioned.
             </div>
             {[
-              { label: 'Staff Join Code (share with weighment operators)', value: result.join_code, id: 'code', mono: true, large: true },
-              { label: 'Agent API Key (configure in agent.exe)', value: result.api_key, id: 'key', mono: true, large: false },
+              { label: 'Staff Access Code (Weighment Operators)', value: result.join_code, id: 'code', mono: true, large: true },
+              { label: 'PC Agent API Key (Local PC Node)', value: result.api_key, id: 'key', mono: true, large: false },
             ].map(item => (
-              <div key={item.id} className="form-group">
-                <label className="form-label" style={{ color:'var(--primary)' }}>{item.label}</label>
-                <div style={{ display:'flex', gap:'0.5rem' }}>
-                  <input className="input" value={item.value} readOnly style={{ flex:1, fontFamily:'monospace', fontSize: item.large ? '1rem' : '0.8rem', letterSpacing: item.large ? '2px' : 'normal', fontWeight: item.large ? 700 : 400 }} />
-                  <button className="btn btn-secondary" style={{ width:80 }} onClick={() => copy(item.value, item.id)}>
-                    {copied === item.id ? <CheckCircle size={14} color="var(--success)" /> : <><Copy size={14} /> Copy</>}
+              <div key={item.id} className="form-group" style={{ marginBottom: '1.5rem' }}>
+                <label className="form-label" style={{ color:'var(--primary)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem' }}>{item.label}</label>
+                <div style={{ display:'flex', gap:'0.75rem' }}>
+                  <input className="input-premium" value={item.value} readOnly style={{ flex:1, fontFamily:'monospace', fontSize: item.large ? '1.25rem' : '0.85rem', letterSpacing: item.large ? '3px' : 'normal', fontWeight: 900, background: 'var(--bg2)', padding: '0.75rem 1rem' }} />
+                  <button className="nav-item-premium" style={{ width:100, background: 'var(--surface2)', border: '1px solid var(--border)' }} onClick={() => copy(item.value, item.id)}>
+                    {copied === item.id ? <CheckCircle size={16} color="var(--success)" /> : <><Copy size={16} /> Copy</>}
                   </button>
                 </div>
               </div>
             ))}
-            <button className="btn btn-secondary btn-full mt-2" onClick={onClose}>Done</button>
-          </>
+            <button className="btn-premium-gold" style={{ height: 50, marginTop: '1rem' }} onClick={onClose}>FINALIZE</button>
+          </div>
         )}
       </div>
     </div>
@@ -162,128 +165,58 @@ function CreateOperatorModal({ companies, onClose }) {
   };
 
   return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
-      <div className="card-luxury" style={{ maxWidth:460, width:'100%' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
-          <h3 style={{ fontWeight:700 }}>Generate Join Code</h3>
-          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
+    <div style={{ position:'fixed', inset:0, background:'rgba(5,6,15,0.85)', zIndex:2100, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(1rem, 5vw, 2rem)', backdropFilter: 'blur(24px) saturate(180%)', WebkitBackdropFilter: 'blur(24px) saturate(180%)' }}>
+      <div className="card-luxury anim-scale-in" style={{ maxWidth:500, width:'100%', borderRadius: 32, padding: '2.5rem' }}>
+        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'2rem' }}>
+          <div>
+            <h3 style={{ fontWeight:900, fontSize: '1.4rem' }}>Operator Access</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text3)', fontWeight: 600 }}>Retrieve join codes for manual distribution</p>
+          </div>
+          <button className="nav-item-premium" style={{ width:'auto', padding:'0.6rem', borderRadius: 12 }} onClick={onClose}><X size={22} /></button>
         </div>
 
-        <div className="alert alert-info" style={{ marginBottom:'1.5rem', fontSize:'0.875rem' }}>
-          Select a company to get its unique join code. You can share this manually or use the "Respond" button in the requests tab to email it automatically.
+        <div className="alert alert-info" style={{ marginBottom:'1.5rem', fontSize:'0.85rem', fontWeight: 600, borderRadius: 12 }}>
+          Share this unique join code with weighment operators to link them to a specific company node.
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Select Company</label>
-          <select className="select" style={{ width:'100%' }} value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
+        <div className="form-group" style={{ marginBottom: '2rem' }}>
+          <label className="form-label" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>Select Company Node</label>
+          <select className="input-premium" style={{ width:'100%', background: 'var(--bg2)', padding: '0.75rem' }} value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
             <option value="">-- Choose a company --</option>
             {companies.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
           </select>
         </div>
 
         {company && (
-          <div className="form-group">
-            <label className="form-label" style={{ color:'var(--primary)' }}>Join Code to Share</label>
-            <div style={{ display:'flex', gap:'0.5rem' }}>
-              <input className="input" value={company.join_code} readOnly style={{ flex:1, fontFamily:'monospace', fontSize:'1.1rem', letterSpacing:'3px', fontWeight:700 }} />
-              <button className="btn btn-secondary" style={{ width:90 }} onClick={copy}>
-                {copied ? <CheckCircle size={14} color="var(--success)" /> : <><Copy size={14} /> Copy</>}
+          <div className="form-group anim-fade-up">
+            <label className="form-label" style={{ color:'var(--primary)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '0.75rem' }}>Transmission Join Code</label>
+            <div style={{ display:'flex', gap:'0.75rem' }}>
+              <input className="input-premium" value={company.join_code} readOnly style={{ flex:1, fontFamily:'monospace', fontSize:'1.25rem', letterSpacing:'4px', fontWeight:900, background: 'var(--bg2)', padding: '0.75rem 1rem' }} />
+              <button className="nav-item-premium" style={{ width:100, background: 'var(--surface2)', border: '1px solid var(--border)' }} onClick={copy}>
+                {copied ? <CheckCircle size={18} color="var(--success)" /> : <><Copy size={16} /> Copy</>}
               </button>
             </div>
           </div>
         )}
 
-        <button className="btn btn-secondary btn-full mt-2" onClick={onClose}>Close</button>
+        <button className="btn-premium-gold" style={{ height: 50, marginTop: '2rem' }} onClick={onClose}>DONE</button>
       </div>
     </div>
   );
 }
 
-// ─── Respond to Operator Request Modal ──────────────────────
-function RespondModal({ request, companies, email, onClose, onResponded }) {
-  const [selectedCompanyId, setSelectedCompanyId] = useState('');
-  const [adminMessage, setAdminMessage] = useState('Your request for a join code has been approved. Please find the details below.');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const company = companies.find(c => c.id === selectedCompanyId);
-
-  const submit = async () => {
-    setLoading(true); setError('');
-    try {
-      const res = await fetch(`${API}/super/operator-requests/${request.id}/respond`, {
-        method: 'POST',
-        headers: apiH(email),
-        body: JSON.stringify({
-          message: adminMessage,
-          join_code: company?.join_code || null
-        })
-      });
-      if (!res.ok) {
-        const d = await res.json();
-        throw new Error(d.detail || 'Failed to send response');
-      }
-      onResponded();
-      onClose();
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', padding:'2rem', backdropFilter: 'blur(4px)' }}>
-      <div className="card-luxury" style={{ maxWidth:540, width:'100%' }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'1.5rem' }}>
-          <div>
-            <h3 style={{ fontWeight:700 }}>Respond to {request.name}</h3>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text3)' }}>A notification will be sent to: <span style={{ color:'var(--primary)' }}>{request.contact}</span></p>
-          </div>
-          <button className="btn btn-ghost" style={{ padding:'0.4rem' }} onClick={onClose}><X size={20} /></button>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Attach Join Code (Optional)</label>
-          <select className="select" style={{ width:'100%' }} value={selectedCompanyId} onChange={e => setSelectedCompanyId(e.target.value)}>
-            <option value="">-- No join code (Reject/Info only) --</option>
-            {companies.map(c => <option key={c.id} value={c.id}>Allocate to: {c.name}</option>)}
-          </select>
-          {company && <div style={{ marginTop:'0.4rem', fontSize:'0.75rem', color:'var(--success)' }}>Allocating Join Code: <strong>{company.join_code}</strong></div>}
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Email Message Body</label>
-          <textarea className="input" style={{ width:'100%', minHeight:100, fontSize:'0.85rem' }} 
-            value={adminMessage} onChange={e => setAdminMessage(e.target.value)} />
-        </div>
-
-        {error && <div className="alert alert-error mb-2">{error}</div>}
-
-        <div style={{ display:'flex', gap:'0.75rem', marginTop:'1.5rem' }}>
-          <button className="btn btn-primary btn-full" onClick={submit} disabled={loading}>
-            {loading ? <span className="spinner" /> : <><Send size={16} /> Send Response & Email</>}
-          </button>
-          <button className="btn btn-secondary btn-full" onClick={onClose}>Cancel</button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Main Super Admin Page ────────────────────────────────────
 export default function SuperAdmin({ userEmail }) {
   const [stats, setStats] = useState(null);
   const [companies, setCompanies] = useState([]);
   const [errors, setErrors] = useState([]);
-  const [opRequests, setOpRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('companies');
   const [viewCompany, setViewCompany] = useState(null);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [showAddCompany, setShowAddCompany] = useState(false);
-  const [showCreateOp, setShowCreateOp] = useState(false);
-  const [activeRequest, setActiveRequest] = useState(null);
 
   const isAuthorized = userEmail?.toLowerCase().trim() === SUPER_ADMIN_EMAIL.toLowerCase().trim();
 
@@ -294,10 +227,9 @@ export default function SuperAdmin({ userEmail }) {
         fetch(`${API}/super/stats`,     { headers: apiH(userEmail) }),
         fetch(`${API}/super/companies`, { headers: apiH(userEmail) }),
         fetch(`${API}/super/errors`,    { headers: apiH(userEmail) }),
-        fetch(`${API}/super/operator-requests`, { headers: apiH(userEmail) }),
       ]);
-      const [s, c, e, o] = await Promise.all([sRes.json(), cRes.json(), eRes.json(), oRes.json()]);
-      setStats(s); setCompanies(c.data || []); setErrors(e.data || []); setOpRequests(o.data || []);
+      const [s, c, e] = await Promise.all([sRes.json(), cRes.json(), eRes.json()]);
+      setStats(s); setCompanies(c.data || []); setErrors(e.data || []);
     } finally {
       setLoading(false);
     }
@@ -330,7 +262,6 @@ export default function SuperAdmin({ userEmail }) {
       {viewCompany    && <TxModal company={viewCompany} email={userEmail} onClose={() => setViewCompany(null)} />}
       {showAddCompany && <AddCompanyModal email={userEmail} onClose={() => setShowAddCompany(false)} onCreated={fetchAll} />}
       {showCreateOp   && <CreateOperatorModal companies={companies} onClose={() => setShowCreateOp(false)} />}
-      {activeRequest  && <RespondModal request={activeRequest} companies={companies} email={userEmail} onClose={() => setActiveRequest(null)} onResponded={fetchAll} />}
 
       {deleteConfirm && (
         <div style={{ position:'fixed', inset:0, background:'rgba(0,0,0,0.65)', zIndex:200, display:'flex', alignItems:'center', justifyContent:'center', backdropFilter: 'blur(4px)' }}>
@@ -359,9 +290,6 @@ export default function SuperAdmin({ userEmail }) {
           <button className="btn btn-primary" onClick={() => setShowAddCompany(true)}>
             <PlusCircle size={16} /> Add Company
           </button>
-          <button className="btn btn-secondary" onClick={() => setShowCreateOp(true)}>
-            <UserPlus size={16} /> Operator Code
-          </button>
           <button className="btn btn-secondary" onClick={fetchAll} disabled={loading}>
             <RefreshCw size={15} style={{ animation: loading ? 'spin 0.6s linear infinite' : 'none' }} /> Refresh
           </button>
@@ -372,17 +300,21 @@ export default function SuperAdmin({ userEmail }) {
         <div style={{ textAlign:'center', padding:'4rem' }}><span className="spinner" style={{ width:36, height:36, borderWidth:3 }} /></div>
       ) : (
         <>
-          {/* Stats */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:'1.25rem', marginBottom:'2rem' }}>
+          {/* Stats Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2.5rem' }}>
             {[
-              { label:'Total Companies',    value: stats?.total_companies    ?? 0, color:'var(--primary)' },
-              { label:'Total Transactions', value: stats?.total_transactions ?? 0, color:'var(--text)'    },
-              { label:'Platform Errors',    value: stats?.total_errors       ?? 0, color: stats?.total_errors > 0 ? 'var(--danger)':'var(--success)' },
-              { label:'Total Net Weight',   value:`${((stats?.total_net_weight ?? 0)/1000).toFixed(1)}t`, color:'var(--success)' },
-            ].map((s,i) => (
-              <div key={i} className="stat-card">
-                <div className="stat-label">{s.label}</div>
-                <div className="stat-value" style={{ color:s.color }}>{s.value}</div>
+              { label: 'Active Companies', val: stats?.total_companies ?? 0, color: '#3b82f6', icon: <Building2 size={20} /> },
+              { label: 'Global Transactions', val: stats?.total_transactions ?? 0, color: '#d4af37', icon: <Scale size={20} /> },
+              { label: 'System Anomalies', val: stats?.total_errors ?? 0, color: (stats?.total_errors > 0 ? '#ef4444' : '#22c55e'), icon: <AlertTriangle size={20} /> },
+              { label: 'Net Fabric Weight', val: `${((stats?.total_net_weight ?? 0) / 1000).toFixed(1)}t`, color: '#22c55e', icon: <CheckCircle size={20} /> }
+            ].map((s, i) => (
+              <div key={i} className="stat-card-premium anim-fade-up" style={{ '--card-accent': `${s.color}11`, '--card-border': `${s.color}33`, animationDelay: `${i * 0.1}s`, padding: '1.5rem' }}>
+                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1rem' }}>
+                   <div style={{ fontSize:'0.7rem', fontWeight:800, color:'var(--text3)', textTransform:'uppercase', letterSpacing:'0.1em' }}>{s.label}</div>
+                   <div style={{ background:`${s.color}16`, color:s.color, padding:'8px', borderRadius:'10px', display:'flex' }}>{s.icon}</div>
+                 </div>
+                 <div style={{ fontSize:'2.25rem', fontWeight:900, color:'var(--text)', letterSpacing:'-0.03em' }}>{s.val}</div>
+                 <div style={{ fontSize:'0.75rem', color:'var(--text3)', marginTop:'0.25rem', fontWeight: 600 }}>Real-time synchronization</div>
               </div>
             ))}
           </div>
@@ -391,7 +323,6 @@ export default function SuperAdmin({ userEmail }) {
           <div style={{ display:'flex', gap:'0.25rem', background:'var(--surface)', padding:'0.25rem', borderRadius:'var(--radius)', width:'fit-content', marginBottom:'1.5rem' }}>
             {[
               { id:'companies', label:`Companies (${companies.length})` },
-              { id:'op_requests', label:`Operator Requests (${opRequests.filter(r => r.status === 'pending').length})` },
               { id:'errors',    label:`Errors (${errors.length})` },
             ].map(t => (
               <button key={t.id} onClick={() => setTab(t.id)} className="btn" style={{ padding:'0.5rem 1.1rem', background: tab===t.id ? 'var(--surface2)' : 'transparent', color: tab===t.id ? 'var(--primary)' : 'var(--text2)', border: tab===t.id ? '1px solid var(--border2)' : '1px solid transparent' }}>
@@ -423,9 +354,24 @@ export default function SuperAdmin({ userEmail }) {
                         <Building2 size={15} color="var(--primary)" /> {c.name}
                       </td>
                       <td>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', padding: '2px 8px', borderRadius: 6, background: c.plan === 'enterprise' ? 'rgba(212,175,55,0.1)' : 'var(--bg2)', color: c.plan === 'enterprise' ? 'var(--primary)' : 'var(--text2)', border: '1px solid var(--border)' }}>
-                          {c.plan || 'Standard'}
-                        </span>
+                        <select 
+                          className="input-premium" 
+                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', width: 'auto', background: c.plan === 'enterprise' ? 'rgba(212,175,55,0.1)' : 'var(--bg2)', border: '1px solid var(--border)' }}
+                          value={c.plan || 'free'}
+                          onChange={async (e) => {
+                            const newPlan = e.target.value;
+                            setCompanies(prev => prev.map(comp => comp.id === c.id ? { ...comp, plan: newPlan } : comp));
+                            await fetch(`${API}/super/company/${c.id}/plan`, {
+                              method: 'POST',
+                              headers: apiH(userEmail),
+                              body: JSON.stringify({ plan: newPlan })
+                            });
+                          }}
+                        >
+                          <option value="free">FREE / AUTOMATION</option>
+                          <option value="pro">PRO / CONTROL</option>
+                          <option value="enterprise">ENTERPRISE / INTELLIGENCE</option>
+                        </select>
                       </td>
                       <td style={{ fontFamily:'monospace', fontSize:'0.85rem', letterSpacing:'2px', color:'var(--primary)' }}>{c.join_code}</td>
                       <td style={{ fontFamily:'monospace', fontSize:'0.75rem', color:'var(--text3)' }}>
@@ -451,47 +397,7 @@ export default function SuperAdmin({ userEmail }) {
             </div>
           )}
 
-          {/* Operator Requests */}
-          {tab === 'op_requests' && (
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Requester</th>
-                    <th>Contact Info</th>
-                    <th>Message</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {opRequests.length === 0 ? (
-                    <tr><td colSpan={5} style={{ textAlign:'center', padding:'3rem', color:'var(--text3)' }}>No requests yet.</td></tr>
-                  ) : opRequests.map(r => (
-                    <tr key={r.id}>
-                      <td style={{ fontWeight: 700 }}>{r.name}</td>
-                      <td style={{ color: 'var(--text2)' }}>{r.contact}</td>
-                      <td style={{ fontSize: '0.8rem', color: 'var(--text3)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.message || '—'}</td>
-                      <td>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '2px 8px', borderRadius: 6, background: r.status === 'approved' ? 'var(--success-bg)' : 'rgba(245,158,11,0.05)', color: r.status === 'approved' ? 'var(--success)' : 'var(--warning)' }}>
-                          {r.status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td>
-                        {r.status === 'pending' ? (
-                          <button className="btn btn-primary" style={{ padding: '0.35rem 0.8rem', fontSize: '0.78rem' }} onClick={() => setActiveRequest(r)}>
-                            Respond
-                          </button>
-                        ) : (
-                          <span style={{ fontSize:'0.7rem', color:'var(--text3)' }}>Processed</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+
 
           {/* Errors */}
           {tab === 'errors' && (

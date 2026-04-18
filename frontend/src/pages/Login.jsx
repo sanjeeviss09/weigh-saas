@@ -65,7 +65,7 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif', paddingTop: 'clamp(4rem, 15vh, 8rem)' }}>
+    <div className="auth-page-premium" style={{ fontFamily: 'Inter, sans-serif', padding: 'clamp(2rem, 10vh, 6rem) 1rem', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
       {/* Animated particles */}
       {PARTICLES.map(p => (
         <div key={p.id} style={{
@@ -79,27 +79,59 @@ export default function Login() {
         }} />
       ))}
 
-      {/* ── Left Column (hidden on mobile) ── */}
-      <div style={{ display: 'none', flex: 1, alignItems: 'center', justifyContent: 'center', padding: '3rem', '@media (min-width: 900px)': { display: 'flex' } }}>
-      </div>
-
       {/* ── Auth Card ── */}
-      <div className="auth-card-premium" style={{ margin: '0 auto' }}>
-        {/* Logo */}
-        <div className="anim-fade-up" style={{ textAlign: 'center', marginBottom: 'clamp(1.5rem, 5vw, 2.5rem)' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 64, height: 64, borderRadius: 20, background: 'var(--primary-glow)', border: '1px solid var(--primary)', marginBottom: '1.25rem', opacity: 0.8 }}>
+      <div className="card-luxury anim-scale-in" style={{ 
+        margin: '0 auto', 
+        maxWidth: 500, 
+        width: '100%', 
+        padding: 'clamp(2rem, 8vw, 4rem)',
+        borderRadius: 32,
+        background: 'rgba(5, 5, 5, 0.8)',
+        zIndex: 10
+      }}>
+        {/* Logo/Header */}
+        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+          <div className="anim-pulse-glow" style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            width: 72, 
+            height: 72, 
+            borderRadius: 20, 
+            background: 'var(--primary-glow)', 
+            border: '1px solid rgba(212,175,55,0.3)', 
+            marginBottom: '1.5rem'
+          }}>
             <KeyRound size={32} color="var(--primary)" />
           </div>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>Welcome Back</h1>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text3)', marginTop: '0.5rem', fontWeight: 500, lineHeight: 1.4 }}>Sign in to your LogiCrate account</p>
+          <h1 style={{ 
+            fontWeight: 900, 
+            fontSize: 'clamp(2.5rem, 6vw, 2.8rem)', 
+            color: '#ffffff', 
+            letterSpacing: '-0.04em',
+            lineHeight: 1,
+            marginBottom: '0.75rem'
+          }}>Access Portal</h1>
+          <p style={{ 
+            color: 'var(--primary)', 
+            fontSize: '0.7rem', 
+            fontWeight: 900, 
+            letterSpacing: '0.2rem', 
+            textTransform: 'uppercase',
+            opacity: 0.9
+          }}>Secure Biometric Protocol Simulation</p>
         </div>
 
-        {/* Stats strip */}
-        <div className="anim-fade-up anim-delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '0.75rem', marginBottom: '2rem' }}>
-          {[['1,284+', 'Weighments'], ['99.8%', 'Accuracy'], ['60s', 'Setup Time']].map(([n, l]) => (
-            <div key={l} style={{ textAlign: 'center', padding: '0.7rem', background: 'var(--surface2)', borderRadius: 10, border: '1px solid var(--border)' }}>
-              <div style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--primary)' }}>{n}</div>
-              <div style={{ fontSize: '0.65rem', color: 'var(--text3)', marginTop: 2 }}>{l}</div>
+        {/* Status Strip */}
+        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '3rem' }}>
+          {[
+            { val: '1,280+', lab: 'NODES' },
+            { val: '99.9%', lab: 'SYNC' },
+            { val: '40ms', lab: 'LATENCY' }
+          ].map(s => (
+            <div key={s.lab} style={{ flex: 1, padding: '1rem 0.5rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, textAlign: 'center' }}>
+              <div style={{ fontWeight: 900, fontSize: '0.9rem', color: 'var(--primary)' }}>{s.val}</div>
+              <div style={{ fontSize: '0.55rem', color: 'var(--text3)', fontWeight: 800, letterSpacing: '0.05em', marginTop: '2px' }}>{s.lab}</div>
             </div>
           ))}
         </div>
@@ -107,19 +139,18 @@ export default function Login() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="anim-fade-up anim-delay-2">
           {/* Email */}
-          <div className="anim-fade-up" style={{ marginBottom: '1rem', animationDelay: '0.3s' }}>
-            <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: 'var(--text2)', marginBottom: '0.5rem', letterSpacing: '0.04em' }}>EMAIL ADDRESS</label>
+          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
+            <label className="form-label" style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text3)', marginBottom: '0.75rem' }}>Operational Email</label>
             <div style={{ position: 'relative' }}>
               <input
                 className="input-premium"
-                type="email" required placeholder="you@company.com"
+                type="email" required placeholder="admin@logicrate.io"
                 value={email} onChange={e => setEmail(e.target.value)}
                 onFocus={() => setFocused('email')} onBlur={() => setFocused(null)}
-                style={{ width: '100%', paddingRight: focused === 'email' ? '2.75rem' : '1.1rem', boxSizing: 'border-box' }}
               />
               {focused === 'email' && (
-                <div style={{ position: 'absolute', right: '0.85rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', animation: 'scaleIn 0.2s ease' }}>
-                  <Zap size={14} />
+                <div style={{ position: 'absolute', right: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', animation: 'scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                  <Zap size={16} />
                 </div>
               )}
             </div>
@@ -148,8 +179,8 @@ export default function Login() {
 
           {error && <div style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger)', borderRadius: 10, padding: '0.85rem', marginBottom: '1.25rem', color: 'var(--danger)', fontSize: '0.85rem', fontWeight: 600 }}>{error}</div>}
 
-          <button className="btn-premium-gold" type="submit" disabled={loading} style={{ marginTop: '0.5rem' }}>
-            {loading ? <span className="spinner" style={{ borderColor: 'var(--border)', borderTopColor: 'var(--text)' }} /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>Sign In <ArrowRight size={18} /></span>}
+          <button className="btn-premium-gold" type="submit" disabled={loading} style={{ marginTop: '1rem', height: 56, fontSize: '1.05rem' }}>
+            {loading ? <span className="spinner" style={{ borderColor: 'rgba(0,0,0,0.1)', borderTopColor: '#000' }} /> : <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem' }}>ENTER DASHBOARD <ArrowRight size={20} /></span>}
           </button>
         </form>
 
@@ -182,12 +213,6 @@ export default function Login() {
               onMouseEnter={e => e.target.style.textDecoration = 'underline'}
               onMouseLeave={e => e.target.style.textDecoration = 'none'}
             >Register Company</NavLink>
-          </p>
-          <p style={{ fontSize: '0.82rem', color: 'var(--text3)', marginTop: '0.5rem' }}>
-            Weighment Operator?{' '}
-            <NavLink to="/signup?mode=operator" style={{ color: 'var(--text2)', fontWeight: 600, textDecoration: 'none' }}>
-              Sign Up with Code
-            </NavLink>
           </p>
         </div>
       </div>

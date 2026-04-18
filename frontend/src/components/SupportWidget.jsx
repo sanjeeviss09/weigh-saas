@@ -59,7 +59,18 @@ export default function SupportWidget() {
       
       {/* ── Chat Window ── */}
       {isOpen && mode === 'chat' && (
-        <div className="card-luxury anim-slide-up" style={{ width: 350, height: 500, display: 'flex', flexDirection: 'column', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.5)', border: '1px solid var(--border)' }}>
+        <div className="card-luxury anim-scale-in" style={{ 
+          width: 380, 
+          height: 600, 
+          maxHeight: '80vh',
+          display: 'flex', 
+          flexDirection: 'column', 
+          overflow: 'hidden', 
+          borderRadius: 24,
+          boxShadow: '0 20px 80px rgba(0,0,0,0.6)', 
+          border: '1px solid rgba(212,175,55,0.2)',
+          animation: 'scaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both'
+        }}>
           <div style={{ padding: '1.25rem', background: 'var(--surface)', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
               <div style={{ padding: 6, background: 'var(--primary-glow)', borderRadius: 10, color: 'var(--primary)' }}><Bot size={20} /></div>
@@ -103,17 +114,45 @@ export default function SupportWidget() {
 
       {/* ── Menu Options ── */}
       {isOpen && mode !== 'chat' && (
-        <div className="anim-slide-up" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end' }}>
-          <a href="https://wa.me/919500593997" target="_blank" rel="noreferrer" className="btn-premium-gold" style={{ padding: '0.75rem 1.25rem', borderRadius: 20, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', background: 'linear-gradient(135deg, #25D366, #128C7E)', color: '#fff' }}>
-            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-            WhatsApp Support
-          </a>
-          <a href="tel:+919500593997" className="btn-premium-gold" style={{ padding: '0.75rem 1.25rem', borderRadius: 20, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', background: 'var(--surface)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-            <PhoneCall size={20} color="var(--primary)" /> Direct Call
-          </a>
-          <button onClick={() => setMode('chat')} className="btn-premium-gold" style={{ padding: '0.75rem 1.25rem', borderRadius: 20, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none' }}>
-            <Bot size={20} /> AI Analysis Chat
-          </button>
+        <div className="anim-fade-up" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end', marginBottom: '0.5rem' }}>
+          {[
+            { 
+              href: "https://wa.me/919500593997", 
+              label: "WhatsApp Support", 
+              icon: <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>,
+              bg: 'linear-gradient(135deg, #25D366, #128C7E)',
+              color: '#fff'
+            },
+            { 
+              href: "tel:+919500593997", 
+              label: "Direct Call", 
+              icon: <PhoneCall size={20} />, 
+              bg: 'var(--surface)',
+              color: 'var(--text)',
+              border: '1px solid var(--border)'
+            },
+            { 
+              onClick: () => setMode('chat'), 
+              label: "AI Analysis Chat", 
+              icon: <Bot size={20} />,
+              isGold: true
+            }
+          ].map((opt, i) => (
+            opt.href ? (
+              <a key={i} href={opt.href} target="_blank" rel="noreferrer" className="btn-premium-gold anim-fade-in" style={{ 
+                padding: '0.85rem 1.5rem', borderRadius: 20, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', 
+                background: opt.bg, color: opt.color, border: opt.border, animationDelay: `${i * 0.1}s`, width: 'auto'
+              }}>
+                {opt.icon} {opt.label}
+              </a>
+            ) : (
+              <button key={i} onClick={opt.onClick} className="btn-premium-gold anim-fade-in" style={{ 
+                padding: '0.85rem 1.5rem', borderRadius: 20, display: 'flex', alignItems: 'center', gap: '0.75rem', animationDelay: `${i * 0.1}s`, width: 'auto'
+              }}>
+                {opt.icon} {opt.label}
+              </button>
+            )
+          ))}
         </div>
       )}
 
@@ -123,10 +162,20 @@ export default function SupportWidget() {
           if (isOpen) { setIsOpen(false); setMode(null); }
           else setIsOpen(true);
         }} 
-        className="btn-premium-gold"
-        style={{ width: 60, height: 60, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 30px rgba(212,175,55,0.4)', padding: 0 }}
+        className="btn-premium-gold anim-pulse-glow"
+        style={{ 
+          width: 64, 
+          height: 64, 
+          borderRadius: '50%', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center', 
+          boxShadow: '0 12px 40px rgba(212,175,55,0.4)', 
+          padding: 0,
+          transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+        }}
       >
-        {isOpen ? <X size={26} /> : <MessageSquare size={26} />}
+        {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
       </button>
     </div>
   );

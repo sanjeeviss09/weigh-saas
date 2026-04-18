@@ -4,7 +4,8 @@ const ThemeContext = createContext();
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('app-theme') || 'system';
+    // Default to 'dark' — the platform's luxury dark aesthetic
+    return localStorage.getItem('app-theme') || 'dark';
   });
 
   useEffect(() => {
@@ -16,8 +17,10 @@ export function ThemeProvider({ children }) {
       if (currentTheme === 'system') {
         activeTheme = mediaQuery.matches ? 'dark' : 'light';
       }
-      
+      // Apply directly to <html> — CSS variables cascade from here
       root.setAttribute('data-theme', activeTheme);
+      // Also set body background immediately to prevent flash
+      document.body.style.background = activeTheme === 'light' ? '#ffffff' : '#000000';
       localStorage.setItem('app-theme', currentTheme);
     };
 
@@ -31,8 +34,12 @@ export function ThemeProvider({ children }) {
     return () => mediaQuery.removeEventListener('change', listener);
   }, [theme]);
 
+  const handleSetTheme = (newTheme) => {
+    setTheme(newTheme);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme }}>
       {children}
     </ThemeContext.Provider>
   );

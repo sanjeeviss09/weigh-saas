@@ -1,114 +1,204 @@
+"""
+LogiCrate PC Agent v5.0
+========================
+Self-contained PDF watcher. No config.json required.
+On first run, the user enters their station's Join Code.
+The agent validates it, stores credentials locally, and begins watching.
+
+Usage:
+  python agent.py
+
+Requirements:
+  pip install requests watchdog pdfplumber
+"""
+
 import os
 import sys
 import time
 import json
-import shutil
 import hashlib
-import threading
-import subprocess
+import sqlite3
 import requests
-import pdfplumber
-import winreg
+from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-try:
-    import tkinter as tk
-    from tkinter import ttk, messagebox
-    HAS_TK = True
-except ImportError:
-    HAS_TK = False
+# ─── CONSTANTS ─────────────────────────────────────────────────────────────────
+VERSION = "5.0"
+WATCH_DIR = r"C:\Weighments"
+CREDENTIALS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".logirate")
+QUEUE_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "queue.db")
 
-# ─── Global Error Logger ─────────────────────────────────────────────────────
-def log_fatal_error(msg):
-    with open(os.path.join(SCRIPT_DIR, "setup_error.log"), "a", encoding="utf-8") as f:
-        f.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] {msg}\n")
-    print(f"FATAL: {msg}")
+# Backend URL — auto-detect or hardcode production
+BACKEND_URL = os.environ.get("LOGICRATE_API", "https://logicrate-backend.onrender.com")
 
-try:
-    import requests
-    import pdfplumber
-    from watchdog.observers import Observer
-    from watchdog.events import FileSystemEventHandler
-except ImportError as e:
-    log_fatal_error(f"Missing dependency: {e}. Run 'pip install requests pdfplumber watchdog'")
+# ─── CONSOLE STYLE ─────────────────────────────────────────────────────────────
+def banner():
+    print("\n" + "=" * 58)
+    print(f"   LogiCrate PC Agent v{VERSION}")
+    print("   Automated Weighbridge PDF Sync")
+    print("=" * 58)
 
-# ─── Config Manager ──────────────────────────────────────────────────────────
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_PATH = os.path.join(SCRIPT_DIR, "config.json")
+def info(msg):
+    print(f"  [✓] {msg}")
 
-def load_config():
-    if not os.path.exists(CONFIG_PATH):
-        # Create default config if missing
-        default_config = {
-            "api_url": "http://127.0.0.1:8000",
-            "api_key": "YOUR-API-KEY-HERE",
-            "company_id": "",
-            "watch_folder": "C:\\LogiRate\\PDFs",
-            "setup_complete": False,
-            "first_run": True
-        }
-        save_config(default_config)
-        return default_config
-        
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+def warn(msg):
+    print(f"  [!] {msg}")
 
-def save_config(cfg):
-    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(cfg, f, indent=4)
+def error(msg):
+    print(f"  [✗] {msg}")
 
-CONFIG = load_config()
+def status(msg):
+    print(f"  [~] {msg}")
 
-API_KEY = CONFIG.get("api_key")
-API_URL = CONFIG.get("api_url", "http://127.0.0.1:8000")
-COMPANY_ID = CONFIG.get("company_id")
-WATCH_DIR = os.path.abspath(CONFIG.get("watch_folder", "C:\\LogiRate\\PDFs"))
-ARCHIVE_DIR = os.path.join(WATCH_DIR, "archive")
-
-# ─── Registry System for Auto-Start ─────────────────────────────────────────
-def add_to_startup():
+# ─── CREDENTIALS ───────────────────────────────────────────────────────────────
+def load_credentials():
+    """Load saved station credentials from .logirate file."""
+    if not os.path.exists(CREDENTIALS_FILE):
+        return None
     try:
-        key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r'Software\Microsoft\Windows\CurrentVersion\Run', 0, winreg.KEY_SET_VALUE)
-        # Assuming the executable is agent.exe
-        exe_path = sys.executable if getattr(sys, 'frozen', False) else os.path.abspath(__file__)
-        winreg.SetValueEx(key, "LogiRateAgent", 0, winreg.REG_SZ, f'"{exe_path}"')
-        winreg.CloseKey(key)
-        return True
-    except Exception as e:
-        print(f"Failed to add to startup: {e}")
-        return False
+        with open(CREDENTIALS_FILE, "r") as f:
+            creds = json.load(f)
+        if creds.get("api_key") and creds.get("company_id") and creds.get("station_name"):
+            return creds
+    except Exception:
+        pass
+    return None
 
-# ─── UI Wizard (Tkinter) ─────────────────────────────────────────────────────
+def save_credentials(creds):
+    """Save station credentials to .logirate file."""
+    with open(CREDENTIALS_FILE, "w") as f:
+        json.dump(creds, f, indent=2)
 
-# ─── Simple CLI Setup ────────────────────────────────────────────────────────
-def run_setup():
-    print("=== LogiRate Agent Setup ===")
-    print(f"Watch Directory: {WATCH_DIR}")
-    os.makedirs(WATCH_DIR, exist_ok=True)
-    os.makedirs(ARCHIVE_DIR, exist_ok=True)
-    
-    confirm = input(f"Create background service for {WATCH_DIR}? (y/n): ")
-    if confirm.lower() == 'y':
-        add_to_startup()
-        CONFIG["first_run"] = False
-        CONFIG["setup_complete"] = True
-        save_config(CONFIG)
-        print("Setup complete. Agent will now run in background.")
-        return True
-    return False
+def setup_first_run():
+    """Interactive first-run setup: ask for Join Code, validate with backend."""
+    print("\n  First-time setup detected.")
+    print("  You need your station's Join Code to connect.\n")
+    print("  Your Join Code looks like: GOLD-XXXXXX")
+    print("  (You can find it in your LogiCrate dashboard → Settings)\n")
+
+    while True:
+        join_code = input("  Enter your station Join Code: ").strip().upper()
+        if not join_code:
+            warn("Join code cannot be empty. Try again.")
+            continue
+
+        status(f"Validating join code: {join_code} ...")
+        try:
+            r = requests.get(
+                f"{BACKEND_URL}/validate-join-code",
+                params={"code": join_code},
+                timeout=15
+            )
+            if r.status_code == 200:
+                data = r.json()
+                company_id = data["company_id"]
+                station_name = data["company_name"]
+
+                # Now fetch the API key for this station
+                try:
+                    api_r = requests.get(
+                        f"{BACKEND_URL}/agent/config/{company_id}",
+                        timeout=15
+                    )
+                    if api_r.status_code == 200:
+                        config_data = api_r.json()
+                        api_key = config_data.get("api_key", "")
+                    else:
+                        # Fallback: use join code as identifier
+                        api_key = ""
+                except Exception:
+                    api_key = ""
+
+                creds = {
+                    "company_id": company_id,
+                    "station_name": station_name,
+                    "api_key": api_key,
+                    "join_code": join_code,
+                    "backend_url": BACKEND_URL,
+                }
+                save_credentials(creds)
+
+                print()
+                info(f"Station linked: {station_name}")
+                info(f"Company ID: {company_id}")
+                info(f"Credentials saved to: {CREDENTIALS_FILE}")
+                return creds
+
+            elif r.status_code == 404:
+                error("Join code not found. Please check and try again.")
+            else:
+                error(f"Server error ({r.status_code}). Try again.")
+
+        except requests.ConnectionError:
+            error(f"Cannot reach server at {BACKEND_URL}")
+            error("Check your internet connection and try again.")
+        except Exception as e:
+            error(f"Unexpected error: {e}")
+
+        retry = input("\n  Try again? (y/n): ").strip().lower()
+        if retry != "y":
+            print("\n  Exiting setup. Run the agent again when ready.")
+            sys.exit(0)
 
 
-# ─── Utility Functions ───────────────────────────────────────────────────
+# ─── OFFLINE QUEUE (SQLite) ────────────────────────────────────────────────────
+def init_db():
+    conn = sqlite3.connect(QUEUE_DB)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS payload_queue
+                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                  file_name TEXT,
+                  file_hash TEXT,
+                  raw_text TEXT,
+                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)''')
+    conn.commit()
+    conn.close()
 
-def wait_for_file_stability(file_path: str, max_retries=10, delay=1.0) -> bool:
+def queue_offline(file_name, file_hash, raw_text):
+    conn = sqlite3.connect(QUEUE_DB)
+    c = conn.cursor()
+    c.execute("INSERT INTO payload_queue (file_name, file_hash, raw_text) VALUES (?, ?, ?)",
+              (file_name, file_hash, raw_text))
+    conn.commit()
+    conn.close()
+    warn(f"Queued offline: {file_name}")
+
+def flush_queue(api_url, api_key):
+    """Retry uploading any queued records."""
+    conn = sqlite3.connect(QUEUE_DB)
+    c = conn.cursor()
+    c.execute("SELECT id, file_name, file_hash, raw_text FROM payload_queue")
+    rows = c.fetchall()
+
+    if not rows:
+        conn.close()
+        return
+
+    status(f"Retrying {len(rows)} queued record(s)...")
+    for row in rows:
+        record_id, fname, fhash, rtext = row
+        success = push_to_api(api_url, api_key, fname, fhash, rtext)
+        if success:
+            c.execute("DELETE FROM payload_queue WHERE id=?", (record_id,))
+            conn.commit()
+            info(f"Queued upload success: {fname}")
+        else:
+            warn("Server still unreachable. Will retry next cycle.")
+            break
+    conn.close()
+
+
+# ─── PDF PROCESSING ────────────────────────────────────────────────────────────
+def wait_for_file(file_path, max_retries=10, delay=1.0):
+    """Wait until a file is fully written to disk."""
     previous_size = -1
     retries = 0
     while retries < max_retries:
         try:
             current_size = os.path.getsize(file_path)
             if current_size == previous_size and current_size > 0:
-                time.sleep(1) 
+                time.sleep(0.5)
                 return True
             previous_size = current_size
         except OSError:
@@ -117,109 +207,137 @@ def wait_for_file_stability(file_path: str, max_retries=10, delay=1.0) -> bool:
         time.sleep(delay)
     return False
 
-def generate_file_hash(file_path: str) -> str:
+def extract_text(file_path):
+    """Extract text from PDF using pdfplumber (no OCR dependency)."""
+    try:
+        import pdfplumber
+        text = ""
+        with pdfplumber.open(file_path) as pdf:
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+        return text.strip()
+    except Exception as e:
+        error(f"PDF read error: {e}")
+        return ""
+
+def file_hash(file_path):
+    """Generate MD5 hash for duplicate detection."""
     md5 = hashlib.md5()
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             md5.update(chunk)
     return md5.hexdigest()
 
-def extract_text(file_path: str) -> str:
-    extracted_text = ""
-    try:
-        with pdfplumber.open(file_path) as pdf:
-            for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    extracted_text += text + "\n"
-    except Exception as e:
-        print(f"Extraction error on {file_path}: {e}")
-    return extracted_text.strip()
 
-# ─── Processing Logic ────────────────────────────────────────────────────
-
-def process_file(file_path: str):
-    filename = os.path.basename(file_path)
-    print(f"[{time.strftime('%H:%M:%S')}] Detected: {filename}")
-    
-    if not wait_for_file_stability(file_path):
-        print(f"[{time.strftime('%H:%M:%S')}] Error: File {filename} unstable.")
-        return
-
-    file_hash = generate_file_hash(file_path)
-    print(f"[{time.strftime('%H:%M:%S')}] Extracting text from {filename}...")
-    raw_text = extract_text(file_path)
-    
-    if not raw_text:
-        print(f"[{time.strftime('%H:%M:%S')}] Error: No text found. Archive as failed.")
-        shutil.move(file_path, os.path.join(ARCHIVE_DIR, f"failed_{filename}"))
-        return
+# ─── API UPLOAD ────────────────────────────────────────────────────────────────
+def push_to_api(api_url, api_key, file_name, fhash, raw_text):
+    """Upload extracted text to the LogiCrate backend."""
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["x-api-key"] = api_key
 
     payload = {
-        "file_name": filename,
-        "file_hash": file_hash,
+        "file_name": file_name,
+        "file_hash": fhash,
         "raw_text": raw_text,
-        "company_id": COMPANY_ID
     }
-    
-    headers = { "Content-Type": "application/json" }
-    if API_KEY and API_KEY != "YOUR-API-KEY-HERE":
-        headers["x-api-key"] = API_KEY
 
-    print(f"[{time.strftime('%H:%M:%S')}] Uploading {filename} to {API_URL}...")
     try:
-        response = requests.post(f"{API_URL}/api/upload", json=payload, headers=headers)
-        if response.status_code in [200, 201, 202]:
-            print(f"[{time.strftime('%H:%M:%S')}] Success: {filename} uploaded.")
-            shutil.move(file_path, os.path.join(ARCHIVE_DIR, filename))
-        else:
-            print(f"[{time.strftime('%H:%M:%S')}] Server Error ({response.status_code}): {response.text}")
+        r = requests.post(api_url, json=payload, headers=headers, timeout=15)
+        r.raise_for_status()
+        return True
     except Exception as e:
-        print(f"[{time.strftime('%H:%M:%S')}] Connection Error: {str(e)}")
+        error(f"Upload failed ({file_name}): {e}")
+        return False
 
-# ─── Watchdog Observer ───────────────────────────────────────────────────
 
+# ─── FILE WATCHER ──────────────────────────────────────────────────────────────
 class PDFHandler(FileSystemEventHandler):
-    def on_created(self, event):
-        if not event.is_directory and event.src_path.lower().endswith(".pdf"):
-            threading.Thread(target=process_file, args=(event.src_path,), daemon=True).start()
+    def __init__(self, api_url, api_key):
+        self.api_url = api_url
+        self.api_key = api_key
 
-def run_silent_agent():
-    print(f"LogiRate PC Agent Running in Background...")
-    print(f"API URL: {API_URL}")
-    print(f"Watching: {WATCH_DIR}")
-    
+    def on_created(self, event):
+        if event.is_directory:
+            return
+        if not event.src_path.lower().endswith(".pdf"):
+            return
+
+        fname = os.path.basename(event.src_path)
+        status(f"New PDF detected: {fname}")
+
+        if not wait_for_file(event.src_path):
+            warn(f"File not stable, skipping: {fname}")
+            return
+
+        fhash = file_hash(event.src_path)
+        raw_text = extract_text(event.src_path)
+
+        if not raw_text:
+            warn(f"Could not extract text from: {fname}")
+            return
+
+        info(f"Extracted {len(raw_text)} characters from {fname}")
+
+        success = push_to_api(self.api_url, self.api_key, fname, fhash, raw_text)
+        if success:
+            info(f"✓ Uploaded: {fname}")
+        else:
+            queue_offline(fname, fhash, raw_text)
+
+
+# ─── MAIN ──────────────────────────────────────────────────────────────────────
+def main():
+    banner()
+
+    # 1. Load or setup credentials
+    creds = load_credentials()
+    if not creds:
+        creds = setup_first_run()
+
+    company_id = creds["company_id"]
+    station_name = creds["station_name"]
+    api_key = creds.get("api_key", "")
+    backend = creds.get("backend_url", BACKEND_URL)
+    api_url = f"{backend}/api/upload"
+
+    print()
+    info(f"Station: {station_name}")
+    info(f"Backend: {backend}")
+    info(f"Watch folder: {WATCH_DIR}")
+
+    # 2. Create watch folder if missing
     os.makedirs(WATCH_DIR, exist_ok=True)
-    os.makedirs(ARCHIVE_DIR, exist_ok=True)
-    
-    event_handler = PDFHandler()
+
+    # 3. Init offline queue
+    init_db()
+
+    # 4. Start watcher
+    handler = PDFHandler(api_url, api_key)
     observer = Observer()
-    observer.schedule(event_handler, path=WATCH_DIR, recursive=False)
+    observer.schedule(handler, path=WATCH_DIR, recursive=False)
     observer.start()
-    
-    # Process backlog
-    existing_files = [f for f in os.listdir(WATCH_DIR) if f.lower().endswith('.pdf')]
-    for file in existing_files:
-        threading.Thread(target=process_file, args=(os.path.join(WATCH_DIR, file),), daemon=True).start()
+
+    print()
+    print("  " + "─" * 50)
+    info("Agent is RUNNING. Watching for PDFs...")
+    info("Minimize this window — do NOT close it.")
+    info("Press Ctrl+C to stop.")
+    print("  " + "─" * 50)
+    print()
 
     try:
         while True:
-            time.sleep(1)
+            time.sleep(30)
+            flush_queue(api_url, api_key)
     except KeyboardInterrupt:
+        print()
+        info("Agent stopped by user.")
         observer.stop()
     observer.join()
 
-def main():
-    print(f"[{time.strftime('%H:%M:%S')}] LogiCrate Agent Initializing...")
-    
-    if CONFIG.get("first_run", True):
-        success = run_setup()
-        if success:
-            run_silent_agent()
-        else:
-            print("Setup aborted.")
-    else:
-        run_silent_agent()
 
 if __name__ == "__main__":
     main()

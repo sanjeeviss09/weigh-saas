@@ -206,29 +206,30 @@ export default function Weighments({ companyId, companyName }) {
       </div>
 
       {/* ── Filters & Table ── */}
-      <div className="card-hover-glow anim-fade-up" style={{ 
-        background: 'var(--surface)', 
-        border: '1px solid var(--border)', 
-        borderRadius: 24, 
-        padding: 'clamp(1rem, 4vw, 1.5rem)', 
-        animationDelay: '0.5s' 
+      <div className="anim-fade-up" style={{ 
+        background: 'var(--surface)',
+        border: '1px solid var(--border)',
+        borderRadius: 24,
+        animationDelay: '0.5s',
+        marginBottom: '2rem',
+        overflow: 'hidden'
       }}>
-        <div style={{ display:'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap:'wrap' }}>
-          <div style={{ position:'relative', flex:1, minWidth:280 }}>
-            <Search size={16} style={{ position:'absolute', left:'1rem', top:'50%', transform:'translateY(-50%)', color: 'var(--text3)' }} />
-            <input className="input-premium" placeholder="Search by vehicle ID..." value={search}
-              onChange={e => setSearch(e.target.value)} style={{ paddingLeft:'2.75rem', width:'100%', boxSizing: 'border-box' }} />
+        <div style={{ display:'flex', gap: '1rem', alignItems: 'center', padding: 'clamp(1rem, 3vw, 1.5rem)', flexWrap:'wrap', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ position:'relative', flex:1, minWidth:200 }}>
+            <Search size={18} style={{ position:'absolute', left:'1.25rem', top:'50%', transform:'translateY(-50%)', color: 'var(--text3)', opacity: 0.5 }} />
+            <input className="input-premium" placeholder="Search vehicle ID, party name..." value={search}
+              onChange={e => setSearch(e.target.value)} style={{ paddingLeft:'3.5rem', width:'100%', boxSizing: 'border-box', background: 'var(--bg2)' }} />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--surface2)', padding: '0.5rem 1rem', borderRadius: 14, border: '1px solid var(--border)' }}>
-            <Filter size={14} color="var(--primary)" />
-            <select style={{ background:'transparent', border:'none', color: 'var(--text)', fontSize:'0.85rem', outline:'none', cursor:'pointer', fontWeight: 600 }} value={status} onChange={e => setStatus(e.target.value)}>
-              <option value="" style={{ background: 'var(--surface2)' }}>All Transactions</option>
-              <option value="open" style={{ background: 'var(--surface2)' }}>Active / Pending</option>
-              <option value="closed" style={{ background: 'var(--surface2)' }}>Finalized Records</option>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'var(--surface2)', padding: '0.65rem 1.25rem', borderRadius: 12, border: '1px solid var(--border)' }}>
+            <Filter size={16} color="var(--primary)" />
+            <select style={{ background:'transparent', border:'none', color: 'var(--text)', fontSize:'0.85rem', outline:'none', cursor:'pointer', fontWeight: 700 }} value={status} onChange={e => setStatus(e.target.value)}>
+              <option value="" style={{ background: 'var(--surface2)' }}>All Transmissions</option>
+              <option value="open" style={{ background: 'var(--surface2)' }}>Active Sessions</option>
+              <option value="closed" style={{ background: 'var(--surface2)' }}>Archive Nodes</option>
             </select>
           </div>
-          <button className="nav-item-premium" onClick={fetchLogs} style={{ width: 'auto', padding: '0.6rem 1rem', background: 'var(--surface2)', fontSize: '0.8rem', border: '1px solid var(--border)' }}>
-            <RefreshCw size={14} /> SYNC DATA
+          <button className="nav-item-premium" onClick={fetchLogs} style={{ width: 'auto', padding: '0.75rem 1.25rem', background: 'var(--surface2)', fontSize: '0.82rem', borderRadius: 12, border: '1px solid var(--border)' }}>
+            <RefreshCw size={14} /> SYNC ARCHIVE
           </button>
         </div>
 
@@ -239,18 +240,18 @@ export default function Weighments({ companyId, companyName }) {
               <div style={{ marginTop: '1rem', color: 'var(--text3)', fontSize: '0.75rem', letterSpacing: '0.1em' }}>QUERYING ARCHIVE...</div>
             </div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 4px', minWidth: '1000px' }}>
+            <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 2px' }}>
               <thead>
                 <tr style={{ textAlign: 'left' }}>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Vehicle Number</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Action</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Entity / Party</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Material</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Gross (kg)</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Tare (kg)</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Net Value</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Charge</th>
-                  <th style={{ padding: '0.75rem 1rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Progress</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Vehicle ID</th>
+                  <th style={{ width: '52px', padding: '0.85rem 0.75rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', background: 'var(--bg2)' }}>Slip</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Entity / Party</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Material</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Gross (kg)</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Tare (kg)</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', whiteSpace: 'nowrap', background: 'var(--bg2)' }}>Net (kg)</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', background: 'var(--bg2)' }}>Fee</th>
+                  <th style={{ padding: '0.85rem 1rem', fontSize: '0.65rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.15em', background: 'var(--bg2)' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -259,36 +260,36 @@ export default function Weighments({ companyId, companyName }) {
                   const statusColor = w.status === 'closed' ? '#22c55e' : '#f59e0b';
                   return (
                     <tr key={i} className="table-row-premium" style={{ animation: 'fadeSlideIn 0.3s ease both', animationDelay: `${0.1 + (i * 0.05)}s` }}>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '14px 0 0 14px', border: '1px solid var(--border)', borderRight: 'none', fontFamily: 'monospace', fontWeight: 800, color: 'var(--primary)', letterSpacing: '0.05em' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderRadius: '14px 0 0 14px', border: '1px solid var(--border)', borderRight: 'none', fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', letterSpacing: '2px', fontSize: '0.8rem' }}>
                         {w.vehicle_number}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-                        <button className="nav-item-premium" onClick={() => printWeighmentSlip(w)} style={{ padding: '0.4rem 0.75rem', fontSize: '0.65rem', width: 'auto', background: 'var(--surface2)', color: 'var(--primary)', fontWeight: 800, border: '1px solid var(--border)' }}>
-                          <Download size={12} /> PDF SLIP
+                      <td style={{ padding: '0.75rem 1.1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+                        <button onClick={() => printWeighmentSlip(w)} style={{ padding: '6px', background: 'var(--primary-glow)', color: 'var(--primary)', border: '1px solid var(--primary)', borderRadius: '8px', cursor: 'pointer', display: 'flex', boxShadow: '0 0 10px rgba(212,175,55,0.1)' }}>
+                          <Download size={14} />
                         </button>
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text)' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.82rem', fontWeight: 800, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {w.party_name || '—'}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.8rem', color: 'var(--text3)' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.75rem', color: 'var(--text3)', fontWeight: 600 }}>
                         {w.material || '—'}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontWeight: 700, color: 'var(--text)' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontWeight: 800, color: 'var(--text)', fontSize: '0.9rem' }}>
                         {w.gross_weight?.toLocaleString() || '—'}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.85rem' }}>
-                        {w.tare_weight?.toLocaleString() || <span style={{ color:'var(--warning)', fontSize:'0.7rem', fontWeight:800 }}>PENDING</span>}
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontSize: '0.8rem', fontWeight: 600 }}>
+                        {w.tare_weight?.toLocaleString() || <span style={{ color:'var(--warning)', fontSize:'0.6rem', fontWeight:900, textTransform: 'uppercase' }}>Wait</span>}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontWeight: 900, color: 'var(--success)' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', fontWeight: 900, color: 'var(--success)', fontSize: '0.95rem' }}>
                         {w.net_weight?.toLocaleString() || '—'}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', color: 'var(--primary)', fontWeight: 800 }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)', color: 'var(--primary)', fontWeight: 800, fontSize: '0.85rem' }}>
                         {amt > 0 ? `₹${parseFloat(amt).toLocaleString('en-IN')}` : '—'}
                       </td>
-                      <td style={{ padding: '1rem', background: 'var(--surface)', borderRadius: '0 14px 14px 0', border: '1px solid var(--border)', borderLeft: 'none' }}>
+                      <td style={{ padding: '0.75rem 1rem', background: 'var(--surface2)', borderRadius: '0 14px 14px 0', border: '1px solid var(--border)', borderLeft: 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor }}></div>
-                          <span style={{ fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', color: statusColor }}>{w.status === 'open' ? 'Pending' : w.status}</span>
+                          <div style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, boxShadow: `0 0 8px ${statusColor}` }}></div>
+                          <span style={{ fontSize: '0.62rem', fontWeight: 900, textTransform: 'uppercase', color: statusColor, letterSpacing: '0.05em' }}>{w.status === 'open' ? 'Live' : w.status}</span>
                         </div>
                       </td>
                     </tr>
@@ -308,13 +309,14 @@ export default function Weighments({ companyId, companyName }) {
 
       {/* ── Manual Entry Modal ── */}
       {showManual && (
-        <div style={{ position:'fixed', inset:0, background:'rgba(5,6,13,0.95)', backdropFilter: 'blur(12px)', zIndex:1000, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(0rem, 2vw, 1rem)' }}>
-          <div className="auth-card-premium anim-scale-in" style={{ 
-            maxWidth:'640px', 
-            padding:'clamp(1.5rem, 6vw, 2.5rem)',
-            height: window.innerWidth < 768 ? '100%' : 'auto',
-            borderRadius: window.innerWidth < 768 ? 0 : 24,
-            overflowY: 'auto'
+        <div style={{ position:'fixed', inset:0, background:'rgba(5,6,15,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', zIndex:2100, display:'flex', alignItems:'center', justifyContent:'center', padding:'clamp(1rem, 5vw, 2rem)' }}>
+          <div className="card-luxury anim-scale-in" style={{ 
+            maxWidth: 680, 
+            width: '100%',
+            padding: 'clamp(1.5rem, 5vw, 3rem)',
+            borderRadius: 32,
+            boxShadow: '0 32px 80px rgba(0,0,0,0.6)',
+            position: 'relative'
           }}>
             <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1.5rem' }}>
               <div>

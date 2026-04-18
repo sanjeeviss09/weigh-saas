@@ -50,14 +50,10 @@ function FeatureCard({ icon, title, desc, delay }) {
         onMouseLeave={() => setHovered(false)}
         className="card-luxury"
         style={{
-          padding: '2rem', borderRadius: 28,
+          padding: '2.5rem', borderRadius: 32,
           cursor: 'default', height: '100%',
           display: 'flex', flexDirection: 'column',
-          background: hovered ? 'var(--surface2)' : 'var(--surface)',
-          border: hovered ? '1px solid var(--primary)' : '1px solid var(--border)',
-          transition: 'all 0.4s ease',
-          boxShadow: hovered ? '0 20px 40px rgba(0,0,0,0.4)' : 'none',
-          transform: hovered ? 'translateY(-4px)' : 'none'
+          transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         <div style={{
@@ -147,11 +143,12 @@ function Navbar() {
   return (
     <nav style={{
       position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-      background: (scrolled || mobileMenuOpen) ? 'var(--surface)' : 'transparent',
-      backdropFilter: (scrolled || mobileMenuOpen) ? 'blur(20px)' : 'none',
-      borderBottom: (scrolled || mobileMenuOpen) ? '1px solid var(--border)' : '1px solid transparent',
-      transition: 'all 0.4s ease',
-      boxShadow: (scrolled || mobileMenuOpen) ? '0 4px 30px rgba(0,0,0,0.1)' : 'none'
+      background: (scrolled || mobileMenuOpen) ? 'rgba(5,6,12,0.75)' : 'transparent',
+      backdropFilter: (scrolled || mobileMenuOpen) ? 'blur(24px)' : 'none',
+      WebkitBackdropFilter: (scrolled || mobileMenuOpen) ? 'blur(24px)' : 'none',
+      borderBottom: (scrolled || mobileMenuOpen) ? '1px solid rgba(255,255,255,0.08)' : '1px solid transparent',
+      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+      boxShadow: (scrolled || mobileMenuOpen) ? '0 10px 40px rgba(0,0,0,0.4)' : 'none'
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 1.5rem', height: 80, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {/* Logo */}
@@ -230,7 +227,7 @@ export default function LandingPage() {
             <div className="pricing-chip" style={{ marginBottom: '1.5rem', fontSize: '0.75rem', background: 'var(--primary-glow)', border: '1px solid rgba(212,175,55,0.3)' }}>✨ Powered by Gemini AI Neural Engine</div>
           </FadeIn>
           <FadeIn delay={100}>
-            <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4.8rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: '1.5rem' }}>
+            <h1 style={{ fontSize: 'clamp(2.5rem, 9vw, 5.2rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.04em', marginBottom: '2rem' }}>
               Your weighbridge data. <br />
               <span className="text-gradient-gold">Digitized instantly.</span>
             </h1>
@@ -378,7 +375,7 @@ export default function LandingPage() {
           <p style={{ color: 'var(--text2)', maxWidth: 600, margin: '1rem auto 0', fontSize: '1.15rem' }}>No hidden setup fees. No hardware required. Cancel anytime.</p>
         </FadeIn>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '2rem', maxWidth: 900, margin: '0 auto' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 100%, 420px), 1fr))', gap: '2rem', maxWidth: 1000, margin: '0 auto' }}>
           <PricingCard 
             delay={0}
             title="Standard Station"

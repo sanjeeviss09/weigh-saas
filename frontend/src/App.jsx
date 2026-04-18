@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink, useNavigate, Navigate, useLocation } from 'react-router-dom';
-import { Scale, LayoutDashboard, Database, Wrench, LogOut, Building2, Truck, ShieldAlert, ShieldCheck, HelpCircle, MessageCircle, Mail, X, BarChart2, Download, Settings, User, IndianRupee } from 'lucide-react';
+import { Scale, LayoutDashboard, Database, Wrench, LogOut, Building2, Truck, ShieldAlert, ShieldCheck, HelpCircle, MessageCircle, Mail, X, BarChart2, Settings, User, IndianRupee, Shield } from 'lucide-react';
 import { supabase } from './lib/supabaseClient';
 import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import Dashboard from './pages/Dashboard';
@@ -13,12 +13,13 @@ import SuperAdmin from './pages/SuperAdmin';
 import AdminPortal from './pages/AdminPortal';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
-import SignupOperator from './pages/SignupOperator';
 import CompanyProfile from './pages/CompanyProfile';
+import Pricing from './pages/Pricing';
 import AgentSetup from './pages/AgentSetup';
 import OperatorSettings from './pages/OperatorSettings';
 import LandingPage from './pages/LandingPage';
 import SupportWidget from './components/SupportWidget';
+import ErrorBoundary from './components/ErrorBoundary';
 
 const SUPER_ADMIN_EMAIL = 'sanjeevinick09@gmail.com';
 
@@ -100,9 +101,9 @@ function ProtectedApp() {
         <Route path="/home"            element={<LandingPage />} />
         <Route path="/"                element={!session ? <LandingPage /> : <AppShell session={session} />} />
         <Route path="/login"           element={!session ? <Login />           : <Navigate to="/" />} />
-        <Route path="/signup"          element={!session ? <Signup />          : <Navigate to="/" />} />
-        <Route path="/signup-operator" element={!session ? <SignupOperator /> : <Navigate to="/" />} />
-        <Route path="/complete-profile" element={<CompanyProfile />} />
+        <Route path="/signup"           element={!session ? <Signup />        : <Navigate to="/" />} />
+        <Route path="/complete-profile" element={session ? <CompanyProfile /> : <Navigate to="/login" />} />
+        <Route path="/pricing"          element={session ? <Pricing /> : <Navigate to="/login" />} />
         <Route path="/*"               element={session ? <AppShell session={session} /> : <Navigate to="/login" />} />
       </Routes>
       <SupportWidget />
@@ -120,16 +121,26 @@ function AppShell({ session }) {
   
   const companyId   = meta.company_id   || null;
   const companyName = meta.company_name || (isSuper ? 'LogiCrate Global' : 'Your Company');
-  const role        = isSuper ? 'super_admin' : (meta.role || 'company');
+  const rawRole     = isSuper ? 'super_admin' : (meta.role || 'client_company');
+  // Normalize the role so legacy 'operator' or weird strings always map correctly
+  const role        = isSuper ? 'super_admin' : (rawRole === 'client_company' ? 'client_company' : 'weighbridge_station');
+
+  // ── ALL HOOKS MUST COME BEFORE ANY CONDITIONAL RETURN ──
   const [showHelp, setShowHelp] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
-    // Scroll to top on route change
     window.scrollTo(0, 0);
-    // Auto-close sidebar on mobile when navigating
     setIsSidebarOpen(false);
   }, [location.pathname]);
+
+  // ── NOW safe to do conditional redirects after all hooks ──
+  if (!isSuper && !meta.profile_completed) {
+    return <Navigate to={`/complete-profile?mode=${role}`} replace />;
+  }
+  if (!isSuper && role === 'weighbridge_station' && !meta.plan) {
+    return <Navigate to="/pricing" replace />;
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -152,20 +163,20 @@ function AppShell({ session }) {
       { to: '/corrections',  icon: <Wrench size={17} />,      label: 'Global Errors' },
       { to: '/settings',     icon: <Settings size={17} />,    label: 'Settings' },
     ];
-  } else if (role === 'company') {
+  } else if (role === 'client_company') {
     baseLinks = [
       { to: '/',            icon: <LayoutDashboard size={17} />, label: 'Overview', end: true },
       { to: '/analytics',   icon: <BarChart2 size={17} />,       label: 'Analytics & Reports' },
       { to: '/weighments',  icon: <Database size={17} />,        label: 'Weighments' },
       { to: '/corrections', icon: <Wrench size={17} />,          label: 'Corrections' },
-      { to: '/admin',       icon: <Building2 size={17} />,       label: 'Station Profile' },
       { to: '/settings',    icon: <Settings size={17} />,        label: 'Settings' },
     ];
-  } else {
+  } else if (role === 'weighbridge_station') {
     baseLinks = [
       { to: '/',            icon: <LayoutDashboard size={17} />, label: 'Overview', end: true },
       { to: '/tasks',       icon: <Database size={17} />,        label: 'Weighment Tasks' },
       { to: '/accounts',    icon: <IndianRupee size={17} />,     label: 'Financial Hub' },
+      { to: '/admin',       icon: <Shield size={17} />,          label: 'Station Config' },
       { to: '/agent-setup', icon: <Truck size={17} />,           label: 'PC Agent Hub' },
       { to: '/settings',    icon: <Settings size={17} />,        label: 'Settings' },
     ];
@@ -178,14 +189,19 @@ function AppShell({ session }) {
   return (
     <div className={`app-shell ${isSidebarOpen ? 'sidebar-open' : ''}`}>
       {/* Mobile Top Bar */}
-      <div className="mobile-nav-header">
-        <button className="btn-ghost" onClick={() => setIsSidebarOpen(true)} style={{ padding: '0.5rem' }}>
-          <Scale size={24} color="var(--primary)" />
+      <div className="mobile-nav-header anim-fade-in" style={{ 
+        position: 'sticky', top: 0, zIndex: 1000, 
+        background: 'rgba(5,6,15,0.8)', backdropFilter: 'blur(20px)', 
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        height: 70, padding: '0 1.25rem'
+      }}>
+        <button className="nav-item-premium" onClick={() => setIsSidebarOpen(true)} style={{ width: 44, height: 44, padding: 0, justifyContent: 'center', background: 'var(--surface2)', borderRadius: 12 }}>
+          <Scale size={20} color="var(--primary)" />
         </button>
-        <div style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-           <Truck size={18} color="var(--primary)" /> LogiCrate
+        <div style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--text)', display: 'flex', alignItems: 'center', gap: '0.75rem', letterSpacing: '-0.03em' }}>
+           <Truck size={22} color="var(--primary)" className="anim-pulse-glow" /> LogiCrate
         </div>
-        <div style={{ width: 34 }} /> {/* Spacer */}
+        <div style={{ width: 44 }} /> {/* Spacer */}
       </div>
 
       {/* Sidebar Overlay */}
@@ -193,26 +209,26 @@ function AppShell({ session }) {
 
       {/* ── Sidebar ── */}
       <div className={`sidebar ${isSidebarOpen ? 'mobile-open' : ''}`}>
-        <div className="sidebar-logo" style={{ marginBottom: '1.75rem', letterSpacing:'-0.03em', display:'flex', alignItems:'center', gap:'0.75rem' }}>
-          <div className="anim-pulse-glow" style={{ background:'var(--primary-glow)', padding:'6px', borderRadius:'10px', display:'flex' }}>
-            <Truck size={22} color="var(--primary)" />
+        <div className="sidebar-logo" style={{ marginBottom: '2.5rem', display:'flex', alignItems:'center', gap:'1rem', padding: '0.5rem' }}>
+          <div className="anim-pulse-glow" style={{ background:'var(--primary-glow)', padding:'8px', borderRadius:'14px', display:'flex', border: '1px solid rgba(212,175,55,0.4)' }}>
+            <Truck size={24} color="var(--primary)" />
           </div>
-          <span style={{ fontWeight: 900, fontSize: '1.2rem', color: 'var(--text)' }}>LogiCrate</span>
+          <span style={{ fontWeight: 900, fontSize: '1.4rem', color: 'var(--text)', letterSpacing: '-0.04em' }}>LogiCrate</span>
         </div>
 
-        {/* Live System Status */}
-        <div style={{ marginBottom: '1.5rem', padding: '0.6rem 0.85rem', background: 'var(--surface2)', borderRadius: 12, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-           <div className="glow-dot" />
+        {/* Live System Status - High Tech Feel */}
+        <div style={{ marginBottom: '2rem', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.03)', borderRadius: 16, border: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+           <div className="glow-dot" style={{ width: 8, height: 8 }} />
            <div style={{ fontSize: '0.7rem' }}>
-              <div style={{ fontWeight: 700, color: 'var(--text)' }}>System Online</div>
-              <div style={{ color: 'var(--text3)', fontSize: '0.6rem' }}>Syncing to Cloud v4.2</div>
+              <div style={{ fontWeight: 800, color: 'var(--text)', letterSpacing: '0.02em' }}>NETWORK: SECURE</div>
+              <div style={{ color: 'var(--text3)', fontSize: '0.6rem', fontWeight: 700 }}>CLOUD SYNC ENCRYPTED</div>
            </div>
         </div>
 
         {/* Global Admin Link - Dedicated Portal */}
         {isSuper && (
-          <NavLink to="/admin-portal" className="nav-item-premium" style={{ background: 'var(--primary)', color: '#000', fontWeight: 800, marginBottom: '1.5rem', borderRadius: '12px', justifyContent: 'center', boxShadow: '0 8px 16px var(--primary-glow)' }}>
-            <ShieldCheck size={18} /> OPEN ADMIN PORTAL
+          <NavLink to="/admin-portal" className="btn-premium-gold" style={{ height: 48, marginBottom: '2rem', fontSize: '0.75rem', borderRadius: 14 }}>
+            <ShieldCheck size={18} /> ADMIN CONSOLE
           </NavLink>
         )}
 
@@ -221,9 +237,9 @@ function AppShell({ session }) {
           <div style={{ width: 34, height: 34, borderRadius: 10, background: isSuper ? 'var(--primary-glow)' : 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink:0 }}>
             {isSuper
               ? <ShieldCheck size={18} color="var(--primary)" />
-              : role === 'company'
+              : role === 'client_company'
                 ? <Building2 size={18} color="var(--primary)" />
-                : <Truck size={18} color="var(--warning)" />
+                : <Scale size={18} color="var(--warning)" />
             }
           </div>
           <div style={{ minWidth:0, flex:1 }}>
@@ -231,7 +247,7 @@ function AppShell({ session }) {
               {isSuper ? 'Global Admin' : companyName}
             </div>
             <div style={{ fontSize:'0.65rem', color: 'var(--text3)', textTransform:'uppercase', letterSpacing:'0.05em', fontWeight:600 }}>
-              {isSuper ? 'Logicrate Owner' : role}
+              {isSuper ? 'Logicrate Owner' : (role === 'client_company' ? 'Client' : 'Weighbridge')}
             </div>
           </div>
         </div>
@@ -312,24 +328,24 @@ function AppShell({ session }) {
               </>
             )}
   
-            {role === 'company' && !isSuper && (
+            {role === 'client_company' && !isSuper && (
               <>
                 <Route path="/"            element={<Dashboard companyId={companyId} companyName={companyName} />} />
                 <Route path="/weighments"  element={<Weighments companyId={companyId} companyName={companyName} />} />
                 <Route path="/analytics"   element={<Analytics companyId={companyId} companyName={companyName} />} />
                 <Route path="/corrections" element={<Corrections companyId={companyId} />} />
-                <Route path="/admin"       element={<Admin companyId={companyId} userEmail={email} />} />
-                <Route path="/accounts"    element={<Accounts />} />
-                <Route path="/agent-setup" element={<AgentSetup companyId={companyId} />} />
+                <Route path="/settings"    element={<OperatorSettings companyId={companyId} userEmail={email} />} />
               </>
             )}
-            {role === 'weighment' && (
+            {role === 'weighbridge_station' && !isSuper && (
               <>
                 <Route path="/"            element={<Dashboard companyId={companyId} companyName={companyName} />} />
                 <Route path="/tasks"       element={<Weighments companyId={companyId} companyName={companyName} />} />
                 <Route path="/weighments"  element={<Navigate to="/tasks" />} />
+                <Route path="/admin"       element={<Admin companyId={companyId} userEmail={email} />} />
                 <Route path="/accounts"    element={<Accounts />} />
                 <Route path="/agent-setup" element={<AgentSetup companyId={companyId} />} />
+                <Route path="/settings"    element={<OperatorSettings companyId={companyId} userEmail={email} />} />
               </>
             )}
             {isSuper && !role && <Route path="/" element={<Navigate to="/admin-portal" />} />}
@@ -343,9 +359,11 @@ function AppShell({ session }) {
 export default function App() {
   return (
     <ThemeProvider>
-      <Router>
-        <ProtectedApp />
-      </Router>
+      <ErrorBoundary>
+        <Router>
+          <ProtectedApp />
+        </Router>
+      </ErrorBoundary>
     </ThemeProvider>
   );
 }

@@ -9,6 +9,7 @@ from models import WeighmentData, CorrectionRequest
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
+from neural_healer import healer
 
 print("STARTING LOGICRATE BACKEND...")
 print(f"Current Directory: {os.getcwd()}")
@@ -27,6 +28,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/health")
 def health_check():
     return {"status": "online", "version": "1.1.0", "engine": "Gemini Neural Link"}
+
+@app.get("/healer/status")
+def healer_status():
+    return {"status": "active" if healer.is_running else "idle"}
 
 app.add_middleware(
     CORSMiddleware,
@@ -111,6 +116,8 @@ async def process_pdf_worker(queue: asyncio.Queue):
 @app.on_event("startup")
 async def startup_event():
     global process_queue
+    print("LogiCrate Neural Backend Starting...")
+    healer.start()
     if db is None:
         print("CRITICAL: Database not initialized. Backend may fail.")
     
@@ -216,6 +223,14 @@ def get_dashboard_stats(company_id: str = None, company_name: str = None):
                 recent_errors = errors_res.data or []
             except: pass
 
+        join_code = "—"
+        if company_id:
+            try:
+                comp_res = db.table("companies").select("join_code").eq("id", company_id).single().execute()
+                if comp_res.data:
+                    join_code = comp_res.data.get("join_code", "—")
+            except: pass
+
         return {
             "total_transactions": len(all_tx),
             "total_net_weight":   round(total_net, 2),
@@ -223,7 +238,8 @@ def get_dashboard_stats(company_id: str = None, company_name: str = None):
             "closed_transactions": len(closed_tx),
             "total_amount":       round(total_amount, 2),
             "active_alerts":      alerts_count,
-            "recent_errors":      recent_errors
+            "recent_errors":      recent_errors,
+            "join_code":         join_code
         }
     except Exception as e:
         import traceback
@@ -408,6 +424,29 @@ def super_update_join_code(company_id: str, req: UpdateJoinCodeRequest, x_admin_
     res = db.table("companies").update({"join_code": req.join_code.upper()}).eq("id", company_id).execute()
     return {"data": res.data[0]}
 
+class UpdatePlanRequest(BaseModel):
+    company_id: str
+    plan: str
+
+@app.post("/company/update-plan")
+def update_company_plan(req: UpdatePlanRequest):
+    """Update company table plan when checking out from UI. (Test mode only - no signature validation)"""
+    res = db.table("companies").update({"plan": req.plan}).eq("id", req.company_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=400, detail="Company not found")
+    return {"status": "success", "data": res.data[0]}
+
+class SuperUpdatePlanRequest(BaseModel):
+    plan: str
+
+@app.post("/super/company/{company_id}/plan")
+def super_update_company_plan(company_id: str, req: SuperUpdatePlanRequest, x_admin_email: Optional[str] = Header(None)):
+    verify_super_admin(x_admin_email)
+    res = db.table("companies").update({"plan": req.plan}).eq("id", company_id).execute()
+    if not res.data:
+        raise HTTPException(status_code=400, detail="Company not found")
+    return {"status": "success", "data": res.data[0]}
+
 @app.get("/super/users")
 def super_get_users(x_admin_email: Optional[str] = Header(None)):
     verify_super_admin(x_admin_email)
@@ -562,84 +601,24 @@ async def api_chat(req: ChatRequest):
     else:
         return {"response": "I'm not sure about that, but our command centre is available 24/7 on WhatsApp (+91 95005 93997). Shall I link you to them?"}
 
-@app.post("/operator-code-request")
-@app.post("/operator-code-request")
-def create_operator_code_request(req: OperatorCodeRequest):
-    """Stores a request for a join code from a potential operator."""
-    try:
-        res = db.table("operator_requests").insert({
-            "name": req.name,
-            "contact": req.contact,
-            "message": req.message,
-            "status": "pending"
-        }).execute()
-        if not res.data:
-            raise HTTPException(status_code=500, detail="Failed to save request to database")
-        return {"status": "success", "data": res.data[0]}
-    except Exception as e:
-        error_msg = str(e)
-        if "operator_requests" in error_msg:
-            raise HTTPException(status_code=500, detail="Database Error: 'operator_requests' table not found. Please run the SQL fix.")
-        raise HTTPException(status_code=500, detail=f"Database Error: {error_msg}")
+@app.get("/healer/status")
+def get_healer_status():
+    """Check the health of the autonomous healing agent."""
+    return {
+        "active": healer.running,
+        "interventions": 0, # Could count from log if needed
+        "status": "Neural Sovereign: ONLINE" if healer.running else "Neural Sovereign: OFFLINE",
+        "mode": "Sovereign Autonomy (Level 3)"
+    }
 
-@app.get("/super/operator-requests")
-def get_operator_requests(x_admin_email: Optional[str] = Header(None)):
-    """Super Admin fetches all operator code requests."""
-    verify_super_admin(x_admin_email)
-    res = db.table("operator_requests").select("*").order("created_at", desc=True).execute()
-    return {"data": res.data}
-
-@app.post("/super/operator-requests/{request_id}/approve")
-def approve_operator_request(request_id: str, x_admin_email: Optional[str] = Header(None)):
-    """Super Admin marks a request as approved."""
-    verify_super_admin(x_admin_email)
-    res = db.table("operator_requests").update({"status": "approved"}).eq("id", request_id).execute()
-    return {"status": "success"}
-
-class OperatorResponse(BaseModel):
-    message: str
-    join_code: Optional[str] = None
-
-def send_email_mock(to_contact: str, subject: str, body: str):
-    """
-    Mock email/SMS function. 
-    In production, replace this with Resend, SendGrid, or Twilio.
-    """
-    print(f"\n--- [OUTGOING NOTIFICATION] ---")
-    print(f"TO: {to_contact}")
-    print(f"SUBJECT: {subject}")
-    print(f"BODY:\n{body}")
-    print(f"--- [END NOTIFICATION] ---\n")
-    return True
-
-@app.post("/super/operator-requests/{request_id}/respond")
-def respond_operator_request(request_id: str, req: OperatorResponse, x_admin_email: Optional[str] = Header(None)):
-    """Admin responds to a request and triggers a notification to the user."""
-    verify_super_admin(x_admin_email)
+@app.get("/healer/history")
+def get_healer_history(x_admin_email: Optional[str] = Header(None)):
+    """Fetch the neural audit trail for review."""
+    from database import db
+    # verify_super_admin(x_admin_email)
     
-    # 1. Fetch request details
-    req_res = db.table("operator_requests").select("*").eq("id", request_id).execute()
-    if not req_res.data:
-        raise HTTPException(status_code=404, detail="Request not found")
+    log_file = healer.base_path / "neural_history.log"
+    if not log_file.exists():
+        return {"history": "No interventions recorded in this epoch."}
     
-    request_data = req_res.data[0]
-    
-    # 2. Update status
-    db.table("operator_requests").update({
-        "status": "responded",
-        "admin_message": req.message
-    }).eq("id", request_id).execute()
-    
-    # 3. "Send" Email/SMS
-    subject = "Update regarding your Join Request - LogiRate"
-    body = f"Hello {request_data['name']},\n\n"
-    body += f"Administrator Message: {req.message}\n\n"
-    if req.join_code:
-        body += f"YOUR JOIN CODE: {req.join_code}\n"
-        body += f"Use this code at {os.environ.get('VITE_APP_URL', 'http://localhost:5173')}/signup?mode=operator to join.\n\n"
-    
-    body += "Regards,\nLogiRate Team"
-    
-    send_email_mock(request_data['contact'], subject, body)
-    
-    return {"status": "success", "message": "Response sent to user"}
+    return {"history": log_file.read_text()}

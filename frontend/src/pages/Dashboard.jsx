@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { AlertTriangle, Scale, Building2, Key, Truck, CheckCircle, Clock, IndianRupee, Download, ArrowRight, Zap, TrendingUp, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { AlertTriangle, Scale, Building2, Key, Truck, CheckCircle, Clock, IndianRupee, Download, ArrowRight, Zap, TrendingUp, Search, Shield, Copy, Settings } from 'lucide-react';
 import { supabase } from '../lib/supabaseClient';
 
 // ─── Animated Counter Component ──────────────────────────────────────────────
@@ -46,7 +47,7 @@ function OnboardingScreen() {
       }
       const company = await res.json();
       const { error: updateErr } = await supabase.auth.updateUser({
-        data: { role: 'weighment', company_id: company.company_id, company_name: company.company_name }
+        data: { role: 'operator', company_id: company.company_id, company_name: company.company_name }
       });
       if (updateErr) throw updateErr;
       setSuccess(`Joined "${company.company_name}" successfully!`);
@@ -88,28 +89,28 @@ function OnboardingScreen() {
   };
 
   return (
-    <div className="page-content" style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'80vh' }}>
-      <div className="auth-card-premium" style={{ maxWidth:'500px', padding:'clamp(1.5rem, 8vw, 3.5rem)' }}>
-        <div style={{ textAlign:'center', marginBottom:'2.5rem' }}>
-          <div className="anim-pulse-glow" style={{ background:'rgba(212,175,55,0.1)', width:'72px', height:'72px', borderRadius:'22px', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1.5rem', border: '1px solid rgba(212,175,55,0.2)' }}>
+    <div className="page-content" style={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100%', padding: '2rem 1rem' }}>
+      <div className="card-luxury anim-scale-in" style={{ maxWidth: 500, width: '100%', borderRadius: 28 }}>
+        <div style={{ textAlign:'center', marginBottom: '2.5rem' }}>
+          <div className="anim-pulse-glow" style={{ background:'var(--primary-glow)', width:'72px', height:'72px', borderRadius:'22px', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 1.5rem', border: '1px solid rgba(212,175,55,0.3)' }}>
             <Building2 size={36} color="var(--primary)" />
           </div>
-          <h2 style={{ fontWeight:900, fontSize: '1.75rem', marginBottom:'0.75rem', color: 'var(--text)' }}>Welcome to LogiCrate</h2>
-          <p style={{ color:'var(--text2)', fontSize:'0.95rem' }}>Your workspace is ready. Let's finish the setup.</p>
+          <h2 style={{ fontWeight:900, fontSize: '2rem', marginBottom:'0.75rem', color: 'var(--text)', letterSpacing: '-0.02em' }}>Welcome to LogiCrate</h2>
+          <p style={{ color:'var(--text3)', fontSize:'0.95rem', fontWeight: 600 }}>Operational sectors ready. Choose access protocol.</p>
         </div>
 
         {!mode && (
           <div style={{ display:'flex', flexDirection:'column', gap:'1.25rem' }}>
-            <button className="btn-premium-gold" style={{ padding:'1rem', fontSize:'1.05rem', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.75rem' }}
+            <button className="btn-premium-gold" style={{ padding:'1.1rem', fontSize:'1.05rem' }}
               onClick={() => { setMode('join'); setError(''); }}>
               <Key size={20} /> Join with Invite Code
             </button>
             <div style={{ display:'flex', alignItems:'center', gap:'1rem' }}>
-              <div style={{ flex:1, height:'1px', background:'var(--border)' }}></div>
-              <span style={{ fontSize:'0.7rem', color:'var(--text3)', fontWeight: 800 }}>OR</span>
-              <div style={{ flex:1, height:'1px', background:'var(--border)' }}></div>
+              <div style={{ flex:1, height:'1px', background:'var(--border2)' }}></div>
+              <span style={{ fontSize:'0.7rem', color:'var(--text3)', fontWeight: 800, letterSpacing: '0.1em' }}>OR</span>
+              <div style={{ flex:1, height:'1px', background:'var(--border2)' }}></div>
             </div>
-            <button className="nav-item-premium" style={{ padding:'1rem', fontSize:'1.05rem', display:'flex', alignItems:'center', justifyContent:'center', gap:'0.75rem', background: 'var(--surface2)', border: '1px solid var(--border)' }}
+            <button className="nav-item-premium" style={{ padding:'1rem', fontSize:'1.05rem', justifyContent: 'center', background: 'var(--surface2)', borderRadius: 12, border: '1px solid var(--border)' }}
               onClick={() => { setMode('register'); setError(''); }}>
               <Building2 size={20} /> Register New Station
             </button>
@@ -119,18 +120,18 @@ function OnboardingScreen() {
         {mode === 'join' && (
           <form onSubmit={handleJoin} className="anim-fade-up">
             <button type="button" onClick={() => { setMode(null); setError(''); }}
-              style={{ background:'none', border:'none', cursor:'pointer', color:'var(--primary)', fontSize:'0.85rem', fontWeight: 700, marginBottom:'1.5rem', padding:0 }}>← Go Back</button>
-            <h3 style={{ fontWeight:800, marginBottom:'0.5rem', color: 'var(--text)' }}>Enter Invitation Code</h3>
-            <p style={{ color: 'var(--text3)', fontSize: '0.85rem', marginBottom:'1.5rem' }}>Check with your administrator for the Station code.</p>
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <input className="input-premium" style={{ width:'100%', textAlign: 'center', fontFamily:'monospace', fontSize:'1.5rem', letterSpacing:'5px', fontWeight:900, color: 'var(--primary)', padding: '1rem' }}
+              style={{ background:'none', border:'none', cursor:'pointer', color:'var(--primary)', fontSize:'0.85rem', fontWeight: 800, marginBottom:'1.5rem', padding:0, display: 'flex', alignItems: 'center', gap: '4px' }}>← Sector Overview</button>
+            <h3 style={{ fontWeight:900, marginBottom:'0.5rem', color: 'var(--text)', fontSize: '1.25rem' }}>Invitation Access</h3>
+            <p style={{ color: 'var(--text3)', fontSize: '0.85rem', marginBottom:'2rem', fontWeight: 500 }}>Enter the station-specific hex-code provided by your admin.</p>
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <input className="input-premium" style={{ width:'100%', textAlign: 'center', fontFamily:'monospace', fontSize:'1.75rem', letterSpacing:'6px', fontWeight:900, color: 'var(--primary)', padding: '1.25rem' }}
                 type="text" required placeholder="XXXX-XXXX"
                 value={joinCode} onChange={e => setJoinCode(e.target.value.toUpperCase())} />
             </div>
-            {error   && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: '#fca5a5', fontSize: '0.85rem' }}>{error}</div>}
-            {success && <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: '#86efac', fontSize: '0.85rem' }}>{success}</div>}
-            <button className="btn-premium-gold" type="submit" disabled={loading}>
-              {loading ? <><span className="spinner" /> Verifying...</> : 'Confirm Join'}
+            {error   && <div className="alert alert-error mb-3" style={{ fontSize: '0.85rem' }}>{error}</div>}
+            {success && <div className="alert alert-success mb-3" style={{ fontSize: '0.85rem' }}>{success}</div>}
+            <button className="btn-premium-gold" type="submit" disabled={loading} style={{ height: 54 }}>
+              {loading ? <><span className="spinner" /> VERIFYING...</> : 'ESTABLISH LINK'}
             </button>
           </form>
         )}
@@ -138,18 +139,19 @@ function OnboardingScreen() {
         {mode === 'register' && (
           <form onSubmit={handleRegister} className="anim-fade-up">
             <button type="button" onClick={() => { setMode(null); setError(''); }}
-              style={{ background:'none', border:'none', cursor:'pointer', color:'var(--primary)', fontSize:'0.85rem', fontWeight: 700, marginBottom:'1.5rem', padding:0 }}>← Go Back</button>
-            <h3 style={{ fontWeight:800, marginBottom:'0.5rem', color: 'var(--text)' }}>Create Your Station</h3>
-            <p style={{ color: 'var(--text3)', fontSize: '0.85rem', marginBottom:'1.5rem' }}>Set up a new weighbridge workspace for your business.</p>
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <input className="input-premium" style={{ width:'100%', boxSizing: 'border-box' }} type="text" required
+              style={{ background:'none', border:'none', cursor:'pointer', color:'var(--primary)', fontSize:'0.85rem', fontWeight: 800, marginBottom:'1.5rem', padding:0, display: 'flex', alignItems: 'center', gap: '4px' }}>← Sector Overview</button>
+            <h3 style={{ fontWeight:900, marginBottom:'0.5rem', color: 'var(--text)', fontSize: '1.25rem' }}>Station Deployment</h3>
+            <p style={{ color: 'var(--text3)', fontSize: '0.85rem', marginBottom:'2rem', fontWeight: 500 }}>Deploy a new weighbridge workspace on the LogiCrate fabric.</p>
+            <div className="form-group" style={{ marginBottom: '2rem' }}>
+              <label className="form-label">Station Name-space</label>
+              <input className="input-premium" style={{ width:'100%', boxSizing: 'border-box', background: 'var(--bg2)', padding: '1rem' }} type="text" required
                 placeholder="Station Name (e.g. Sri Kadai Eswara)"
                 value={companyName} onChange={e => setCompanyName(e.target.value)} />
             </div>
-            {error   && <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: '#fca5a5', fontSize: '0.85rem' }}>{error}</div>}
-            {success && <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '0.75rem', marginBottom: '1rem', color: '#86efac', fontSize: '0.85rem' }}>{success}</div>}
-            <button className="btn-premium-gold" type="submit" disabled={loading}>
-              {loading ? <><span className="spinner" /> Creating...</> : 'Initialize Workspace'}
+            {error   && <div className="alert alert-error mb-3" style={{ fontSize: '0.85rem' }}>{error}</div>}
+            {success && <div className="alert alert-success mb-3" style={{ fontSize: '0.85rem' }}>{success}</div>}
+            <button className="btn-premium-gold" type="submit" disabled={loading} style={{ height: 54 }}>
+              {loading ? <><span className="spinner" /> INITIALIZING...</> : 'DEPLOY NODE'}
             </button>
           </form>
         )}
@@ -161,17 +163,26 @@ function OnboardingScreen() {
 // ─── Premium Stat Card ──────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color, icon, delay = 0, numeric = false, suffix = "" }) {
   return (
-    <div className="stat-card-premium" style={{ '--card-accent': `${color}11`, '--card-border': `${color}44`, animationDelay: `${delay}s` }}>
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1rem' }}>
-        <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--text3)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{label}</div>
-        <div style={{ background: `${color}11`, color: color, padding: '8px', borderRadius: '12px', display: 'flex' }}>
-           {icon}
+    <div className="card-luxury anim-fade-up" style={{ 
+      animationDelay: `${delay}s`,
+      padding: '1.75rem',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
+    }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'1.25rem' }}>
+        <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text3)', letterSpacing: '0.15em', textTransform: 'uppercase' }}>{label}</div>
+        <div style={{ background: `${color}15`, color: color, padding: '10px', borderRadius: '12px', display: 'flex', border: `1px solid ${color}33`, boxShadow: `0 0 20px ${color}11` }}>
+           {React.cloneElement(icon, { size: 18 })}
         </div>
       </div>
-      <div style={{ fontSize: '2.25rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em', marginBottom: '0.25rem' }}>
+      <div style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.03em', marginBottom: '0.5rem' }}>
         {numeric ? <AnimatedCounter value={value} suffix={suffix} /> : value}
       </div>
-      <div style={{ fontSize:'0.78rem', color: 'var(--text3)', fontWeight: 500 }}>{sub}</div>
+      <div style={{ fontSize:'0.75rem', color: 'var(--text3)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: 4, height: 4, borderRadius: '50%', background: color, boxShadow: `0 0 8px ${color}` }}></div>
+        {sub}
+      </div>
     </div>
   );
 }
@@ -249,8 +260,47 @@ export default function Dashboard({ companyId, companyName }) {
   return (
     <div className="page-content">
       <div className="page-header anim-fade-up">
-        <h1 className="gradient-text-gold">Operational Overview</h1>
-        <p>Live metrics from the global weighbridge cloud</p>
+        <h1 className="gradient-text-gold" style={{ fontSize: 'clamp(2rem, 5vw, 2.5rem)', fontWeight: 900 }}>Operational Overview</h1>
+        <p style={{ fontSize: '1rem', fontWeight: 500, opacity: 0.8 }}>Live metrics from the global weighbridge cloud fabric</p>
+      </div>
+
+      {/* ── Station Identifier Card ── */}
+      <div className="anim-fade-up" style={{ marginBottom: '2rem' }}>
+        <div style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.08), rgba(5,6,15,0.4))', border: '1px solid rgba(212,175,55,0.2)', borderRadius: 24, padding: '1.5rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+            <div style={{ background: 'var(--primary-glow)', padding: '12px', borderRadius: '14px', border: '1px solid rgba(212,175,55,0.3)' }}>
+              <Shield size={24} color="var(--primary)" />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 4 }}>STATION SECURITY ID</div>
+              <div style={{ fontSize: '1.4rem', fontWeight: 900, color: 'var(--text)', letterSpacing: '-0.02em' }}>{companyName}</div>
+            </div>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '0.65rem', fontWeight: 800, color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 6 }}>STATION JOIN CODE</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 900, color: 'var(--primary)', fontFamily: 'monospace', letterSpacing: '4px' }}>
+                {stats?.join_code || '—'}
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button 
+                className="btn-premium-gold" 
+                onClick={() => {
+                  navigator.clipboard.writeText(stats?.join_code || '');
+                  alert('Join Code copied to clipboard!');
+                }}
+                style={{ width: 'auto', padding: '0 1rem', height: 48, fontSize: '0.75rem' }}
+              >
+                <Copy size={16} />
+              </button>
+              <Link to="/admin" className="btn-premium-gold" style={{ height: 48, padding: '0 1.5rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem' }}>
+                <Settings size={18} /> MANAGE STATION
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
       {error && (
@@ -312,13 +362,13 @@ export default function Dashboard({ companyId, companyName }) {
             </div>
 
             <div style={{ overflowX:'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+              <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '0 8px', tableLayout: 'fixed' }}>
                 <thead>
                   <tr style={{ textAlign: 'left' }}>
-                    <th style={{ padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Vehicle ID</th>
-                    <th style={{ padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Entity</th>
-                    <th style={{ padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Net Weight</th>
-                    <th style={{ padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Progress</th>
+                    <th style={{ width: '25%', padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Vehicle ID</th>
+                    <th style={{ width: '35%', padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Entity Node</th>
+                    <th style={{ width: '20%', padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Net Value</th>
+                    <th style={{ width: '20%', padding: '0 1rem 0.75rem', fontSize: '0.7rem', color: 'var(--text3)', textTransform: 'uppercase', letterSpacing: '0.12em' }}>Protocol</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -326,20 +376,20 @@ export default function Dashboard({ companyId, companyName }) {
                     const statusColor = w.status === 'closed' ? '#22c55e' : '#f59e0b';
                     return (
                       <tr key={w.id || i} className="table-row-premium anim-fade-in" style={{ animationDelay: `${0.5 + (i * 0.05)}s` }}>
-                        <td style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '14px 0 0 14px', border: '1px solid var(--border)', borderRight: 'none' }}>
-                           <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--primary)', letterSpacing: '0.05em' }}>{w.vehicle_number}</span>
+                        <td style={{ padding: '1rem', background: 'var(--bg2)', borderRadius: '14px 0 0 14px', border: '1px solid var(--border)', borderRight: 'none' }}>
+                           <span style={{ fontFamily: 'monospace', fontWeight: 900, color: 'var(--primary)', letterSpacing: '2px', fontSize: '0.8rem' }}>{w.vehicle_number}</span>
                         </td>
-                        <td style={{ padding: '1rem', background: 'var(--bg)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-                           <div style={{ color: 'var(--text)', fontSize: '0.85rem', fontWeight: 600 }}>{w.party_name || 'Generic Entry'}</div>
-                           <div style={{ color: 'var(--text3)', fontSize: '0.65rem' }}>{w.material || 'Standard Goods'}</div>
+                        <td style={{ padding: '1rem', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+                           <div style={{ color: 'var(--text)', fontSize: '0.82rem', fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.party_name || 'Generic Entry'}</div>
+                           <div style={{ color: 'var(--text3)', fontSize: '0.65rem', fontWeight: 600 }}>{w.material || 'Standard Goods'}</div>
                         </td>
-                        <td style={{ padding: '1rem', background: 'var(--bg)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-                           <div style={{ color: 'var(--text)', fontWeight: 800 }}>{w.net_weight?.toLocaleString() ?? '--'} <span style={{ fontSize: '0.65rem', color: 'var(--text3)' }}>KG</span></div>
+                        <td style={{ padding: '1rem', background: 'var(--bg2)', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
+                           <div style={{ color: 'var(--text)', fontWeight: 900, fontSize: '0.95rem' }}>{w.net_weight?.toLocaleString() ?? '--'} <span style={{ fontSize: '0.6rem', color: 'var(--text3)', fontWeight: 800 }}>KG</span></div>
                         </td>
-                        <td style={{ padding: '1rem', background: 'var(--bg)', borderRadius: '0 14px 14px 0', border: '1px solid var(--border)', borderLeft: 'none' }}>
+                        <td style={{ padding: '1rem', background: 'var(--bg2)', borderRadius: '0 14px 14px 0', border: '1px solid var(--border)', borderLeft: 'none' }}>
                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                              <div style={{ width: 8, height: 8, borderRadius: '50%', background: statusColor }}></div>
-                              <span style={{ fontSize: '0.65rem', fontWeight: 800, textTransform: 'uppercase', color: statusColor }}>{w.status}</span>
+                              <div style={{ width: 6, height: 6, borderRadius: '50%', background: statusColor, boxShadow: `0 0 8px ${statusColor}` }}></div>
+                              <span style={{ fontSize: '0.62rem', fontWeight: 900, textTransform: 'uppercase', color: statusColor, letterSpacing: '0.05em' }}>{w.status}</span>
                            </div>
                         </td>
                       </tr>
